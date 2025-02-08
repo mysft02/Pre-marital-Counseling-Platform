@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SWP391.Infrastructure.DbContext;
 using SWP391.Service;
 
 namespace SWP391.Controllers
@@ -13,12 +15,14 @@ namespace SWP391.Controllers
         private readonly IConfiguration _config;
         private readonly JwtService _jwtService;
         private readonly ILogger<PingController> _logger;
+        private readonly PmcsDbContext _dbContext;
 
-        public PingController(IConfiguration config, ILogger<PingController> logger, JwtService jwtService)
+        public PingController(IConfiguration config, ILogger<PingController> logger, JwtService jwtService, PmcsDbContext dbContext)
         {
             _config = config;
             _logger = logger;
             _jwtService = jwtService;
+            _dbContext = dbContext;
         }
 
         [HttpGet(Name = "GetPing")]
@@ -28,6 +32,25 @@ namespace SWP391.Controllers
             var appVer = Environment.GetEnvironmentVariable("APP_VERSION");
 
             return Ok("Ok");
+        }
+
+        [HttpGet("db", Name = "GetPingDb")]
+        public IActionResult GetDb()
+        {
+            _logger.LogInformation("Ping DB");
+
+            try
+            {
+                _dbContext.Database.OpenConnection();
+
+                return Ok("Connect DB Success");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Ping DB failed");
+
+                return BadRequest("Connect DB Failed");
+            }
         }
     }
 }
