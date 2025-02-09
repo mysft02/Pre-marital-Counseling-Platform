@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SWP391.Infrastructure.DbContext;
 using SWP391.Service;
+using System.Security.Claims;
 
 namespace SWP391.Controllers
 {
@@ -50,6 +51,28 @@ namespace SWP391.Controllers
                 _logger.LogError(e, "Ping DB failed");
 
                 return BadRequest("Connect DB Failed");
+            }
+        }
+
+        [Authorize]
+        [HttpGet("token", Name = "GetPingToken")]
+        public IActionResult GetToken()
+        {
+            _logger.LogInformation("Ping Token");
+
+            try
+            {
+                var currentUser = HttpContext.User;
+
+                
+
+                return Ok(currentUser.FindFirst(ClaimTypes.Email)?.Value);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Get token Failed");
+
+                return BadRequest("Get token Failed");
             }
         }
     }

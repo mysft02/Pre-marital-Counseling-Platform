@@ -1,4 +1,6 @@
-﻿namespace SWP391.Domain;
+﻿using SWP391.Infrastructure.DataEnum;
+
+namespace SWP391.Domain;
 
 public class User
 {
@@ -10,7 +12,7 @@ public class User
     public string AvatarUrl { get; set; }
     public bool IsActive { get; set; }
     public bool IsAdmin { get; set; }
-    public string Role { get; set; }
+    public UserRoleEnum Role { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public Guid CreatedBy { get; set; }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
+using SWP391.Infrastructure.DataEnum;
 
 namespace SWP391.Infrastructure.DbContext;
 
@@ -40,7 +41,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.Property(u => u.Password).HasMaxLength(100);
             entity.HasIndex(u => u.Email).IsUnique();
             entity.Property(u => u.Email).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Role).IsRequired();
+            entity.Property(e => e.Role).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (UserRoleEnum)Enum.Parse(typeof(UserRoleEnum), v));
             entity.Property(u => u.AvatarUrl).IsRequired(false).HasMaxLength(100);
             entity.Property(u => u.IsActive).IsRequired();
             entity.Property(u => u.IsAdmin).IsRequired();
@@ -92,7 +95,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.MemberResult).WithMany().HasForeignKey(u => u.MemberResultId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Slot).WithMany().HasForeignKey(u => u.SlotId).OnDelete(DeleteBehavior.NoAction);
-            entity.Property(u => u.Status).HasMaxLength(100);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (BookingStatusEnum)Enum.Parse(typeof(BookingStatusEnum), v));
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);

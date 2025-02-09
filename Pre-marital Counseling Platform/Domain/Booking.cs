@@ -1,4 +1,6 @@
-﻿namespace SWP391.Domain
+﻿using SWP391.Infrastructure.DataEnum;
+
+namespace SWP391.Domain
 {
     public class Booking : BaseEntities
     {
@@ -7,7 +9,7 @@
         public Guid TherapistId { get; set; }
         public Guid MemberResultId { get; set; }
         public Guid SlotId { get; set; }
-        public string Status { get; set; }
+        public BookingStatusEnum Status { get; set; }
         public User User { get; set; }
         public Therapist Therapist { get; set; }
         public MemberResult MemberResult { get; set; }
