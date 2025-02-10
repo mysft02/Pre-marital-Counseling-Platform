@@ -145,6 +145,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasKey(u => u.CategoryId);
             entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (CategoryStatusEnum)Enum.Parse(typeof(CategoryStatusEnum), v));
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
@@ -157,6 +160,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Category).WithMany().HasForeignKey(u => u.CategoryId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.QuizStatus).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (QuizStatusEnum)Enum.Parse(typeof(QuizStatusEnum), v));
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
@@ -191,6 +197,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasKey(u => u.QuestionId);
             entity.Property(u => u.QuestionContent).IsRequired().HasMaxLength(200);
             entity.HasOne(u => u.Quiz).WithMany().HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (QuestionStatusEnum)Enum.Parse(typeof(QuestionStatusEnum), v));
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);

@@ -1,8 +1,8 @@
 ﻿using SWP391.Infrastructure.DataEnum;
 
-namespace SWP391.Domain
+namespace SWP391.DTO.Category
 {
-    public class Category : BaseEntities
+    public class CategoryDTO
     {
         public Guid CategoryId { get; set; }
         public string Name { get; set; }
