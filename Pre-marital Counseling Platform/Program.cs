@@ -100,6 +100,7 @@ builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IMemberAnswerService, MemberAnswerService>();
 builder.Services.AddScoped<IMemberResultService, MemberResultService>();
+builder.Services.AddScoped<IAnswerService, AnswerSevice>();
 
 var app = builder.Build();
 

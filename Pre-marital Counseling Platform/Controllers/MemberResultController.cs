@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         }
 
         [Authorize]
-        [HttpPut("Update_Member_Result")]
+        [HttpPost("Update_Member_Result")]
         public async Task<IActionResult> UpdateMemberResult([FromBody] UpdateMemberResultDTO memberResultDTO)
         {
             var currentUser = HttpContext.User;

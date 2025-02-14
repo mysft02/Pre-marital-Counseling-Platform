@@ -36,7 +36,6 @@ namespace SWP391.Service
                     MemberId = x.MemberId,
                     QuestionId = x.QuestionId ?? Guid.Empty,
                     AnswerId = x.AnswerId,
-                    Answer = x.Answer
                 }).ToListAsync();
 
                 return Ok(memberAnswers);
@@ -59,7 +58,6 @@ namespace SWP391.Service
                         MemberId = x.MemberId,
                         QuestionId = x.QuestionId ?? Guid.Empty,
                         AnswerId = x.AnswerId,
-                        Answer = x.Answer
                     })
                     .FirstOrDefaultAsync();
 
@@ -134,7 +132,6 @@ namespace SWP391.Service
                 memberAnswer.MemberAnswerId = updateMemberAnswerDTO.MemberAnswerId;
                 memberAnswer.AnswerId = updateMemberAnswerDTO.AnswerId;
                 memberAnswer.QuestionId = updateMemberAnswerDTO.QuestionId;
-                memberAnswer.Answer = updateMemberAnswerDTO.Answer;
 
                 _context.MemberAnswers.Update(memberAnswer);
                 if(_context.SaveChanges() > 0)

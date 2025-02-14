@@ -7,7 +7,5 @@ namespace SWP391.DTO.MemberAnswer
         public Guid MemberAnswerId { get; set; }
         public Guid QuestionId { get; set; }
         public Guid AnswerId { get; set; }
-        public Answer? Answer { get; set; }
-
     }
 }
