@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 //builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    //options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
+//options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
 
 builder.Services.AddCors(options =>
 {
@@ -98,6 +98,9 @@ builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IBookingResultService, BookingResultService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+builder.Services.AddScoped<IMemberAnswerService, MemberAnswerService>();
+builder.Services.AddScoped<IMemberResultService, MemberResultService>();
+builder.Services.AddScoped<IAnswerService, AnswerSevice>();
 
 var app = builder.Build();
 
