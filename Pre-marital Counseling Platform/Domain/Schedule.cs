@@ -8,5 +8,6 @@
         public int Slot { get; set; }
         public bool IsAvailable { get; set; }
         public Therapist Therapist { get; set; }
+        public List<Booking> Bookings { get; set; }
     }
 }

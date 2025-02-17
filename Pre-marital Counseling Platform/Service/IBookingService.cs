@@ -36,7 +36,7 @@ namespace SWP391.Service
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         MemberResultId = x.MemberResultId,
-                        SlotId = x.SlotId,
+                        ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
                     .ToList();
@@ -57,7 +57,7 @@ namespace SWP391.Service
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         MemberResultId = x.MemberResultId,
-                        SlotId = x.SlotId,
+                        ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
                     .Where(x => x.BookingId == id);
@@ -71,10 +71,30 @@ namespace SWP391.Service
         {
             try
             {
-                var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.SlotId);
+                var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.ScheduleId);
                 if(slot.IsAvailable == false)
                 {
-                    return BadRequest("Slot is not available");
+                    return BadRequest("Slot is not available!");
+                }
+
+                var userQuery = _context.Users.AsQueryable();
+
+                var member = userQuery.FirstOrDefault(x => x.UserId == bookingCreateDTO.MemberId);
+                if(member.Role != UserRoleEnum.MEMBER)
+                {
+                    return BadRequest("Member unauthorized!");
+                }
+
+                if(_context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId) == null)
+                {
+                    return BadRequest("Therapist not found!");
+                }
+
+                var bookingQuery = _context.Bookings.AsQueryable();
+
+                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) == null)
+                {
+                    return BadRequest("Slot is not available!");
                 }
 
                 var booking = new Booking
@@ -127,7 +147,7 @@ namespace SWP391.Service
                 booking.MemberId = bookingUpdateDTO.MemberId;
                 booking.TherapistId = bookingUpdateDTO.TherapistId;
                 booking.MemberResultId = bookingUpdateDTO.MemberResultId;
-                booking.SlotId = bookingUpdateDTO.SlotId;
+                booking.ScheduleId = bookingUpdateDTO.ScheduleId;
 
                 _context.Bookings.Update(booking);
                 if (_context.SaveChanges() > 0)
