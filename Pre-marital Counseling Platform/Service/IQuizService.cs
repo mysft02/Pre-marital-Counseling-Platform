@@ -30,7 +30,6 @@ namespace SWP391.Service
         {
             try
             {
-                List<QuizDTO> quizzes = new List<QuizDTO>();
                 var Quizzes = _context.Quizes
                     .Include(x => x.Category)
                     .ToList();

@@ -20,13 +20,13 @@ namespace SWP391.Controllers
         [HttpGet("Get_All_Member_Result")]
         public async Task<IActionResult> GetAllMemberResults()
         {
-            return Ok(await _memberResultService.GetAllMemberResult());
+            return await _memberResultService.GetAllMemberResult();
         }
 
         [HttpGet("Get_Member_Result_By_Id")]
         public async Task<IActionResult> GetMemberResultById(Guid id)
         {
-            return Ok(await _memberResultService.GetMemberResultById(id));
+            return await _memberResultService.GetMemberResultById(id);
         }
 
         [Authorize]

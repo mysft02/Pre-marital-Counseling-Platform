@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using SWP391.Domain;
 using SWP391.DTO.User;
+using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 using SWP391.Migrations;
 using System.Data;
@@ -63,12 +64,28 @@ namespace SWP391.Service
                     }
                 }
 
+                createdUser.IsActive = true;
                 createdUser.CreatedAt = DateTime.Now;
                 createdUser.UpdatedAt = DateTime.Now;
                 createdUser.CreatedBy = createdUser.UserId;
                 createdUser.UpdatedBy = createdUser.UserId;
 
                 _context.Add(createdUser);
+
+                if(createdUser.Role == UserRoleEnum.THERAPIST)
+                {
+                    var createdTherapist = new Therapist
+                    {
+                        TherapistId = createdUser.UserId,
+                        ConsultationFee = 0,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        CreatedBy = createdUser.UserId,
+                        UpdatedBy = createdUser.UserId
+                    };
+                    _context.Add(createdTherapist);
+                }
+
                 await _context.SaveChangesAsync();
 
                 // Trả về thông tin người dùng mới đã đăng ký

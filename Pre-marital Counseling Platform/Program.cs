@@ -101,6 +101,8 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IMemberAnswerService, MemberAnswerService>();
 builder.Services.AddScoped<IMemberResultService, MemberResultService>();
 builder.Services.AddScoped<IAnswerService, AnswerSevice>();
+builder.Services.AddScoped<ITherapistService, TherapistService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
 var app = builder.Build();
 

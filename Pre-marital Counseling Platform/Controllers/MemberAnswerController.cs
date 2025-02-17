@@ -22,19 +22,13 @@ namespace SWP391.Controllers
         [HttpGet("Get_All_Member_Answer")]
         public async Task<IActionResult> GetAllAnswers()
         {
-            var answers = await _memberAnswerService.GetAllMemberAnswers();
-            return Ok(answers);
+            return await _memberAnswerService.GetAllMemberAnswers();
         }
 
         [HttpGet("Get_All_Member_Answer/{id}")]
         public async Task<IActionResult> GetAnswerById(Guid id)
         {
-            var answer = await _memberAnswerService.GetMemberAnswerById(id);
-            if (answer == null)
-            {
-                return NotFound();
-            }
-            return Ok(answer);
+            return await _memberAnswerService.GetMemberAnswerById(id);
         }
 
         [Authorize]

@@ -71,12 +71,17 @@ namespace SWP391.Service
         {
             try
             {
+                var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.SlotId);
+                if(slot.IsAvailable == false)
+                {
+                    return BadRequest("Slot is not available");
+                }
+
                 var booking = new Booking
                 {
                     MemberId = bookingCreateDTO.MemberId,
                     TherapistId = bookingCreateDTO.TherapistId,
                     MemberResultId = bookingCreateDTO.MemberResultId,
-                    SlotId = bookingCreateDTO.SlotId,
                     Status = BookingStatusEnum.PENDING,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
