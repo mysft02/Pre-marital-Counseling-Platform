@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SWP391.Service;
 using SWP391.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +89,9 @@ builder.Services.AddSwaggerGen(c =>
       }
     });
 });
+
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();

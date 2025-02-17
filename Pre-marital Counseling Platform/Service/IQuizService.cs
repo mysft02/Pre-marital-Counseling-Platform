@@ -45,7 +45,9 @@ namespace SWP391.Service
             {
                 var Quiz = _context.Quizes
                     .Where(x => x.QuizId == id)
-                    .Include(x => x.Category);
+                    .Include(x => x.Category)
+                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .FirstOrDefault();
 
                 return Ok(Quiz);
             }

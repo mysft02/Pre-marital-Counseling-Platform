@@ -157,7 +157,7 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<Quiz>(entity =>
         {
             entity.HasKey(u => u.QuizId);
-            entity.HasOne(u => u.Category).WithMany().HasForeignKey(u => u.CategoryId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Category).WithMany(e => e.Quizzes).HasForeignKey(u => u.CategoryId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Name).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(200);
             entity.Property(e => e.QuizStatus).IsRequired().HasConversion(
@@ -172,7 +172,7 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<QuizResult>(entity =>
         {
             entity.HasKey(u => u.QuizResultId);
-            entity.HasOne(u => u.Quiz).WithMany().HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Quiz).WithMany(e => e.QuizResults).HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Score).HasDefaultValue(0);
             entity.Property(u => u.Level).HasDefaultValue(1);
             entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
@@ -196,7 +196,7 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.QuestionId);
             entity.Property(u => u.QuestionContent).IsRequired().HasMaxLength(200);
-            entity.HasOne(u => u.Quiz).WithMany().HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Quiz).WithMany(e => e.Questions).HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (QuestionStatusEnum)Enum.Parse(typeof(QuestionStatusEnum), v));
@@ -209,7 +209,7 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<Answer>(entity =>
         {
             entity.HasKey(u => u.AnswerId);
-            entity.HasOne(u => u.Question).WithMany().HasForeignKey(u => u.QuestionId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Question).WithMany(e => e.Answers).HasForeignKey(u => u.QuestionId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.AnswerContent).IsRequired().HasMaxLength(200);
             entity.Property(u => u.Score).HasDefaultValue(0);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
