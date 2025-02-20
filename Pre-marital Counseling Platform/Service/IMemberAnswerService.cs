@@ -30,7 +30,7 @@ namespace SWP391.Service
 
         public async Task<IActionResult> SaveMemberAnswer(SaveMemberAnswerDTO dto, string? userId)
         {
-            if (dto == null || string.IsNullOrEmpty(userId))
+            if (dto == null)
             {
                 return BadRequest("Invalid data.");
             }

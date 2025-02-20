@@ -46,5 +46,13 @@ namespace SWP391.Controllers
             var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberResultService.UpdateMemberResult(memberResultDTO, userId);
         }
+
+        [HttpPost("Calculate_Member_Result")]
+        public async Task<IActionResult> CalculateMemberResult([FromBody] CalculateMemberResultDTO calculateMemberResultDTO)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            return await _memberResultService.CalculateMemberResult(calculateMemberResultDTO, userId);
+        }
     }
 }
