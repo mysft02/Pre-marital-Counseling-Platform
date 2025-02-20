@@ -39,7 +39,6 @@ namespace SWP391.Service
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
-                        MemberResultId = x.MemberResultId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
@@ -60,7 +59,6 @@ namespace SWP391.Service
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
-                        MemberResultId = x.MemberResultId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
@@ -89,14 +87,15 @@ namespace SWP391.Service
                     return BadRequest("Member unauthorized!");
                 }
 
-                if(_context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId) == null)
+                var therapist = _context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId);
+                if(therapist == null)
                 {
                     return BadRequest("Therapist not found!");
                 }
 
                 var bookingQuery = _context.Bookings.AsQueryable();
 
-                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) == null)
+                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) != null)
                 {
                     return BadRequest("Slot is not available!");
                 }
@@ -105,7 +104,8 @@ namespace SWP391.Service
                 {
                     MemberId = bookingCreateDTO.MemberId,
                     TherapistId = bookingCreateDTO.TherapistId,
-                    MemberResultId = bookingCreateDTO.MemberResultId,
+                    ScheduleId = bookingCreateDTO.ScheduleId,
+                    Fee = therapist.ConsultationFee,
                     Status = BookingStatusEnum.PENDING,
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
@@ -129,24 +129,24 @@ namespace SWP391.Service
 
                 var transaction = new Transaction
                 {
-                    Amount = -booking.Fee,
+                    Amount = -therapist.ConsultationFee,
                     Description = "Order booking",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(booking.MemberId),
-                    UpdatedBy = Guid.Parse(booking.MemberId)
-                }
+                    CreatedBy = booking.MemberId,
+                    UpdatedBy = booking.MemberId
+                };
 
 
                 var checkTransaction = true;
                 while(checkTransaction)
                 {
                     var id = Guid.NewGuid();
-                    var check = _context.Transactions.FirstOrDefault(c => c.TransactionId == id);
-                    if(check == null)
+                    var trans = _context.Transactions.FirstOrDefault(c => c.TransactionId == id);
+                    if(trans == null)
                     {
                         transaction.TransactionId = id;
-                        check = false;
+                        checkTransaction = false;
                     }
                 }
                 _context.Transactions.Add(transaction);
@@ -158,7 +158,7 @@ namespace SWP391.Service
                     return BadRequest("Balance not enough!");
                 }
 
-                wallet.Balance -= booking.Fee;
+                wallet.Balance -= therapist.ConsultationFee;
                 _context.Wallets.Update(wallet);
 
                 var result = _context.SaveChanges();
@@ -185,7 +185,6 @@ namespace SWP391.Service
                 booking.UpdatedBy = Guid.Parse(userId);
                 booking.MemberId = bookingUpdateDTO.MemberId;
                 booking.TherapistId = bookingUpdateDTO.TherapistId;
-                booking.MemberResultId = bookingUpdateDTO.MemberResultId;
                 booking.ScheduleId = bookingUpdateDTO.ScheduleId;
 
                 _context.Bookings.Update(booking);
@@ -221,7 +220,7 @@ namespace SWP391.Service
 
                 var message = "No returned!";
 
-                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId)
+                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId.ToString())
                 {
                     var transaction = new Transaction
                     {
@@ -229,8 +228,8 @@ namespace SWP391.Service
                         Description = "Cancel booking",
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
-                        CreatedBy = Guid.Parse(booking.MemberId),
-                        UpdatedBy = Guid.Parse(booking.MemberId)
+                        CreatedBy = booking.MemberId,
+                        UpdatedBy = booking.MemberId
                     };
 
                     var transactionQuery = _context.Transactions.AsQueryable();
@@ -311,11 +310,9 @@ namespace SWP391.Service
                     Description = "Finish booking",
                     CreatedAt = DateTime.Now,
                     UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(booking.TherapistId),
-                    UpdatedBy = Guid.Parse(booking.TherapistId)
+                    CreatedBy = booking.TherapistId,
+                    UpdatedBy = booking.TherapistId
                 };
-
-                var transactionQuery = _context.Transactions.AsQueryable();
 
                 var checkId = true;
                 while (checkId)
@@ -336,7 +333,7 @@ namespace SWP391.Service
 
                 if (_context.SaveChanges() > 0)
                 {
-                    return Ok(bookingReturn);
+                    return Ok(booking);
                 }
                 else
                 {

@@ -35,6 +35,16 @@ namespace SWP391.Controllers
         }
 
         [Authorize]
+        [HttpGet("Get_Schedule_By_TherapistId")]
+        public async Task<IActionResult> GetScheduleByTherapistId()
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+
+            return await _scheduleService.HandleGetScheduleByTherapistId(Guid.Parse(userId));
+        }
+
+        [Authorize]
         [HttpPost("Create_Schedule")]
         public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateDTO scheduleCreateDTO)
         {

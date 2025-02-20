@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO.Quiz;
 using SWP391.DTO.Schedule;
@@ -12,6 +13,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleCreateSchedule(ScheduleCreateDTO scheduleCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllSchedules();
         Task<IActionResult> HandleGetScheduleById(Guid id);
+        Task<IActionResult> HandleGetScheduleByTherapistId(Guid id);
         Task<IActionResult> HandleUpdateSchedule(ScheduleUpdateDTO scheduleUpdateDTO, string? userId);
     }
 
@@ -80,6 +82,19 @@ namespace SWP391.Service
             {
                 var schedule = _context.Schedules
                     .Where(x => x.ScheduleId == id);
+
+                return Ok(schedule);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetScheduleByTherapistId(Guid id)
+        {
+            try
+            {
+                var schedule = _context.Schedules
+                    .Include(c => c.Bookings)
+                    .Where(x => x.TherapistId == id);
 
                 return Ok(schedule);
             }
