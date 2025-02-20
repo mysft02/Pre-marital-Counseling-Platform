@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO.Booking;
 using SWP391.DTO.Category;
@@ -9,6 +10,7 @@ namespace SWP391.Service
 {
     public interface IBookingService
     {
+        Task<IActionResult> HandleCancelBooking(Guid id, string? userId);
         Task<IActionResult> HandleCreateBooking(BookingCreateDTO bookingCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllBookings();
         Task<IActionResult> HandleGetBookingById(Guid id);
@@ -157,6 +159,74 @@ namespace SWP391.Service
                 else
                 {
                     return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleCancelBooking(Guid id, string? userId)
+        {
+            try
+            {
+                var booking = _context.Bookings
+                    .Include(e => e.Schedule)
+                    .FirstOrDefault(x => x.BookingId == id);
+
+                if(booking.Status != BookingStatusEnum.PENDING)
+                {
+                    return BadRequest("Booking is not pending!");
+                }
+
+                booking.Status = BookingStatusEnum.CANCELED;
+                booking.UpdatedAt = DateTime.Now;
+                booking.UpdatedBy = Guid.Parse(userId);
+                _context.Bookings.Update(booking);
+
+                var message = "No returned!";
+
+                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2)
+                {
+                    var transaction = new Transaction
+                    {
+                        Amount = +booking.Fee,
+                        Description = "Cancel booking",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        CreatedBy = Guid.Parse(userId),
+                        UpdatedBy = Guid.Parse(userId)
+                    };
+
+                    var transactionQuery = _context.Transactions.AsQueryable();
+
+                    var checkId = true;
+                    while (checkId)
+                    {
+                        Guid transactionId = Guid.NewGuid();
+                        var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
+                        if (check == null)
+                        {
+                            transaction.TransactionId = transactionId;
+                            checkId = false;
+                        }
+                    }
+
+                    message = "Returned!";
+                    _context.Transactions.Add(transaction);
+                }
+
+                BookingReturnDTO bookingReturn = new BookingReturnDTO
+                {
+                    Message = message,
+                    Booking = booking
+                };
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(bookingReturn);
+                }
+                else
+                {
+                    return BadRequest("Cancel Booking failed");
                 }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }

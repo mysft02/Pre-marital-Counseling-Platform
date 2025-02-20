@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateDTO scheduleCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
 
             return await _scheduleService.HandleCreateSchedule(scheduleCreateDTO, userId);
         }
@@ -49,7 +49,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateSchedule([FromBody] ScheduleUpdateDTO scheduleUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
 
             return await _scheduleService.HandleUpdateSchedule(scheduleUpdateDTO, userId);
         }

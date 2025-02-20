@@ -107,8 +107,10 @@ namespace SWP391.Service
 
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, loginUser.UserId.ToString()),
+                    new Claim(ClaimTypes.Sid, loginUser.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, loginUser.FullName),
                     new Claim(ClaimTypes.Email, loginUser.Email),
+                    new Claim(ClaimTypes.MobilePhone, loginUser.Phone),
                     new Claim(ClaimTypes.Role, loginUser.Role.ToString())
                 };
 
