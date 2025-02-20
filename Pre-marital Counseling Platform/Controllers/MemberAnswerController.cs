@@ -19,6 +19,9 @@ namespace SWP391.Controllers
             _memberAnswerService = memberAnswerService;
         }
 
+        [HttpPost("Save")]
+        //public async Task<IActionResult> SaveMemberResult()
+
         [HttpGet("Get_All_Member_Answer")]
         public async Task<IActionResult> GetAllAnswers()
         {
