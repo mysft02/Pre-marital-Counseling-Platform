@@ -19,8 +19,7 @@ namespace SWP391.Controllers
             _memberAnswerService = memberAnswerService;
         }
 
-        [HttpPost("Save")]
-        //public async Task<IActionResult> SaveMemberResult()
+        
 
         [HttpGet("Get_All_Member_Answer")]
         public async Task<IActionResult> GetAllAnswers()
@@ -41,6 +40,14 @@ namespace SWP391.Controllers
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberAnswerService.CreateMemberAnswer(memberAnswerDTO, userId);
+        }
+
+        [HttpPost("Save_Member_Answer")]
+        public async Task<IActionResult> SaveMemberResult([FromBody] SaveMemberAnswerDTO dto)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            return await _memberAnswerService.SaveMemberAnswer(dto, userId);
         }
 
         [Authorize]

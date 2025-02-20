@@ -10,10 +10,13 @@ namespace SWP391.Service
 {
     public interface IMemberAnswerService
     {
+        
         Task<IActionResult> GetAllMemberAnswers();
         Task<IActionResult> GetMemberAnswerById(Guid id);
         Task<IActionResult> CreateMemberAnswer(CreateMemberAnswerDTO createMemberAnswerDTO, string? userId);
         Task<IActionResult> UpdateMemberAnswer(UpdateMemberAnswerDTO updateMemberAnswerDTO, string? userId);
+        Task<IActionResult> SaveMemberAnswer(SaveMemberAnswerDTO dto, string? userId);
+
     }
 
     public class MemberAnswerService : ControllerBase, IMemberAnswerService
@@ -25,12 +28,45 @@ namespace SWP391.Service
             _context = context;
         }
 
+        public async Task<IActionResult> SaveMemberAnswer(SaveMemberAnswerDTO dto, string? userId)
+        {
+            if (dto == null || string.IsNullOrEmpty(userId))
+            {
+                return BadRequest("Invalid data.");
+            }
+
+            try
+            {
+                var memberAnswer = new MemberAnswer
+                {
+                    AnswerId = dto.AnswerId,
+                    MemberAnswerId = dto.MemberAnswerId,
+                    MemberId = dto.MemberId,
+                    QuestionId = dto.QuestionId,
+                };
+
+                await _context.MemberAnswers.AddAsync(memberAnswer);
+                if(_context.SaveChanges() > 0)
+                {
+                    return Ok(memberAnswer);
+                }else
+                {
+                    return BadRequest("Failed to save");
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
+            }
+        }
 
         public async Task<IActionResult> GetAllMemberAnswers()
         {
             try
             {
-                List<MemberAnswerDTO> memberAnswers =  _context.MemberAnswers.Select(x => new MemberAnswerDTO
+                List<MemberAnswerDTO> memberAnswers = _context.MemberAnswers.Select(x => new MemberAnswerDTO
                 {
                     MemberAnswerId = x.MemberAnswerId,
                     MemberId = x.MemberId,
@@ -134,7 +170,7 @@ namespace SWP391.Service
                 memberAnswer.QuestionId = updateMemberAnswerDTO.QuestionId;
 
                 _context.MemberAnswers.Update(memberAnswer);
-                if(_context.SaveChanges() > 0)
+                if (_context.SaveChanges() > 0)
                 {
                     return Ok(memberAnswer);
                 }
@@ -143,7 +179,7 @@ namespace SWP391.Service
                     return BadRequest("Update failed");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

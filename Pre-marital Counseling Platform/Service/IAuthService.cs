@@ -90,7 +90,7 @@ namespace SWP391.Service
                 {
                     UserId = createdUser.UserId,
                     Balance = 0
-                }
+                };
 
                 var checkWallet = true;
                 while(checkWallet)

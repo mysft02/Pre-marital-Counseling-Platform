@@ -96,7 +96,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionService, QuestionService>();
-builder.Services.AddScoped<IBookingService, BookingService>();
+//builder.Services.AddScoped<IBookingService, BookingService>();
 builder.Services.AddScoped<IBookingResultService, BookingResultService>();
 builder.Services.AddScoped<IFeedbackService, FeedbackService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
