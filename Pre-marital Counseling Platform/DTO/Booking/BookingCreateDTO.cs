@@ -4,7 +4,6 @@
     {
         public Guid MemberId { get; set; }
         public Guid TherapistId { get; set; }
-        public Guid MemberResultId { get; set; }
         public Guid ScheduleId { get; set; }
     }
 }

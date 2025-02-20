@@ -100,7 +100,7 @@ namespace SWP391.Service
                     if (checkId == null)
                     {
                         wallet.WalletId = id;
-                        check = false;
+                        checkWallet = false;
                     }
                 }
                 _context.Wallets.Add(wallet);
