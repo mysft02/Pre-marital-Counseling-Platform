@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FirebaseAdmin.Messaging;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO.Booking;
 using SWP391.DTO.Category;
@@ -9,6 +11,8 @@ namespace SWP391.Service
 {
     public interface IBookingService
     {
+        Task<IActionResult> HandleCancelBooking(Guid id, string? userId);
+        Task<IActionResult> HandleCloseBooking(Guid id, string? userId);
         Task<IActionResult> HandleCreateBooking(BookingCreateDTO bookingCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllBookings();
         Task<IActionResult> HandleGetBookingById(Guid id);
@@ -122,6 +126,41 @@ namespace SWP391.Service
                 }
 
                 _context.Bookings.Add(booking);
+
+                var transaction = new Transaction
+                {
+                    Amount = -booking.Fee,
+                    Description = "Order booking",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    CreatedBy = Guid.Parse(booking.MemberId),
+                    UpdatedBy = Guid.Parse(booking.MemberId)
+                }
+
+
+                var checkTransaction = true;
+                while(checkTransaction)
+                {
+                    var id = Guid.NewGuid();
+                    var check = _context.Transactions.FirstOrDefault(c => c.TransactionId == id);
+                    if(check == null)
+                    {
+                        transaction.TransactionId = id;
+                        check = false;
+                    }
+                }
+                _context.Transactions.Add(transaction);
+
+                var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == member.UserId);
+
+                if(wallet.Balance < booking.Fee)
+                {
+                    return BadRequest("Balance not enough!");
+                }
+
+                wallet.Balance -= booking.Fee;
+                _context.Wallets.Update(wallet);
+
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {
@@ -157,6 +196,151 @@ namespace SWP391.Service
                 else
                 {
                     return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleCancelBooking(Guid id, string? userId)
+        {
+            try
+            {
+                var booking = _context.Bookings
+                    .Include(e => e.Schedule)
+                    .FirstOrDefault(x => x.BookingId == id);
+
+                if (booking.Status != BookingStatusEnum.PENDING)
+                {
+                    return BadRequest("Booking is not pending!");
+                }
+
+                booking.Status = BookingStatusEnum.CANCELED;
+                booking.UpdatedAt = DateTime.Now;
+                booking.UpdatedBy = Guid.Parse(userId);
+                _context.Bookings.Update(booking);
+
+                var message = "No returned!";
+
+                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId)
+                {
+                    var transaction = new Transaction
+                    {
+                        Amount = +booking.Fee,
+                        Description = "Cancel booking",
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = DateTime.Now,
+                        CreatedBy = Guid.Parse(booking.MemberId),
+                        UpdatedBy = Guid.Parse(booking.MemberId)
+                    };
+
+                    var transactionQuery = _context.Transactions.AsQueryable();
+
+                    var checkId = true;
+                    while (checkId)
+                    {
+                        Guid transactionId = Guid.NewGuid();
+                        var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
+                        if (check == null)
+                        {
+                            transaction.TransactionId = transactionId;
+                            checkId = false;
+                        }
+                    }
+
+                    message = "Returned!";
+                    _context.Transactions.Add(transaction);
+
+                    var wallet = _context.Wallets.FirstOrDefault(e => e.UserId == booking.MemberId);
+                    wallet.Balance += booking.Fee;
+                    _context.Wallets.Update(wallet);
+                }
+
+                BookingReturnDTO bookingReturn = new BookingReturnDTO
+                {
+                    Message = message,
+                    Booking = booking
+                };
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(bookingReturn);
+                }
+                else
+                {
+                    return BadRequest("Cancel Booking failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleCloseBooking(Guid id, string? userId)
+        {
+            try
+            {
+                var booking = _context.Bookings
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Feedback)
+                    .Include(e => e.BookingResult)
+                    .FirstOrDefault(x => x.BookingId == id);
+
+                if (booking.Status != BookingStatusEnum.PENDING)
+                {
+                    return BadRequest("Booking is not pending!");
+                }
+
+                if(booking.Feedback == null)
+                {
+                    return BadRequest("No feedback yet!");
+                }
+
+                if(booking.BookingResult == null)
+                {
+                    return BadRequest("No result yet!");
+                }
+
+                booking.Status = BookingStatusEnum.FINISHED;
+                booking.UpdatedAt = DateTime.Now;
+                booking.UpdatedBy = Guid.Parse(userId);
+                _context.Bookings.Update(booking);
+
+                var transactionQuery = _context.Transactions.AsQueryable();
+
+                var transaction = new Transaction
+                {
+                    Amount = +booking.Fee,
+                    Description = "Finish booking",
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+                    CreatedBy = Guid.Parse(booking.TherapistId),
+                    UpdatedBy = Guid.Parse(booking.TherapistId)
+                };
+
+                var transactionQuery = _context.Transactions.AsQueryable();
+
+                var checkId = true;
+                while (checkId)
+                {
+                    Guid transactionId = Guid.NewGuid();
+                    var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
+                    if (check == null)
+                    {
+                        transaction.TransactionId = transactionId;
+                        checkId = false;
+                    }
+                }
+                _context.Transactions.Add(transaction);
+
+                var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
+                wallet.Balance += booking.Fee;
+                _context.Wallets.Update(wallet);
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(bookingReturn);
+                }
+                else
+                {
+                    return BadRequest("Finish Booking failed");
                 }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }

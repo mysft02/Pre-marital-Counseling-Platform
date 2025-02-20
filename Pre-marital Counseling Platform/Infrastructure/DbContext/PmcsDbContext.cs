@@ -96,6 +96,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.MemberResult).WithMany().HasForeignKey(u => u.MemberResultId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Schedule).WithMany(e => e.Bookings).HasForeignKey(u => u.ScheduleId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(u => u.Fee).HasDefaultValue(0);
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (BookingStatusEnum)Enum.Parse(typeof(BookingStatusEnum), v));

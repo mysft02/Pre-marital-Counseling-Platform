@@ -86,6 +86,25 @@ namespace SWP391.Service
                     _context.Add(createdTherapist);
                 }
 
+                var wallet = new Wallet
+                {
+                    UserId = createdUser.UserId,
+                    Balance = 0
+                }
+
+                var checkWallet = true;
+                while(checkWallet)
+                {
+                    var id = Guid.NewGuid();
+                    var checkId = _context.Wallets.FirstOrDefault(x => x.UserId == id);
+                    if (checkId == null)
+                    {
+                        wallet.WalletId = id;
+                        check = false;
+                    }
+                }
+                _context.Wallets.Add(wallet);
+
                 await _context.SaveChangesAsync();
 
                 // Trả về thông tin người dùng mới đã đăng ký
@@ -107,8 +126,10 @@ namespace SWP391.Service
 
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.NameIdentifier, loginUser.UserId.ToString()),
+                    new Claim(ClaimTypes.Sid, loginUser.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, loginUser.FullName),
                     new Claim(ClaimTypes.Email, loginUser.Email),
+                    new Claim(ClaimTypes.MobilePhone, loginUser.Phone),
                     new Claim(ClaimTypes.Role, loginUser.Role.ToString())
                 };
 
