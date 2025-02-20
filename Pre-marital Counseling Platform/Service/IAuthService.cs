@@ -86,6 +86,25 @@ namespace SWP391.Service
                     _context.Add(createdTherapist);
                 }
 
+                var wallet = new Wallet
+                {
+                    UserId = createdUser.UserId,
+                    Balance = 0
+                }
+
+                var checkWallet = true;
+                while(checkWallet)
+                {
+                    var id = Guid.NewGuid();
+                    var checkId = _context.Wallets.FirstOrDefault(x => x.UserId == id);
+                    if (checkId == null)
+                    {
+                        wallet.WalletId = id;
+                        check = false;
+                    }
+                }
+                _context.Wallets.Add(wallet);
+
                 await _context.SaveChangesAsync();
 
                 // Trả về thông tin người dùng mới đã đăng ký

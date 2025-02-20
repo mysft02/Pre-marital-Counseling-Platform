@@ -63,5 +63,15 @@ namespace SWP391.Controllers
 
             return await _bookingService.HandleCancelBooking(id, userId);
         }
+
+        [Authorize]
+        [HttpPost("Close_Booking")]
+        public async Task<IActionResult> CloseBooking([FromQuery] Guid id)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+
+            return await _bookingService.HandleCloseBooking(id, userId);
+        }
     }
 }

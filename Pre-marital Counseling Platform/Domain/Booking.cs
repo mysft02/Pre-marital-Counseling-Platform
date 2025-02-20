@@ -15,5 +15,7 @@ namespace SWP391.Domain
         public Therapist Therapist { get; set; }
         public MemberResult MemberResult { get; set; }
         public Schedule Schedule { get; set; }
+        public Feedback Feedback { get; set; }
+        public BookingResult BookingResult { get; set; }
     }
 }
