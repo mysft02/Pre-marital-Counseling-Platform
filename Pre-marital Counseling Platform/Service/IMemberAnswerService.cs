@@ -30,13 +30,13 @@ namespace SWP391.Service
         {
             try
             {
-                List<MemberAnswerDTO> memberAnswers = await _context.MemberAnswers.Select(x => new MemberAnswerDTO
+                List<MemberAnswerDTO> memberAnswers =  _context.MemberAnswers.Select(x => new MemberAnswerDTO
                 {
                     MemberAnswerId = x.MemberAnswerId,
                     MemberId = x.MemberId,
                     QuestionId = x.QuestionId ?? Guid.Empty,
                     AnswerId = x.AnswerId,
-                }).ToListAsync();
+                }).ToList();
 
                 return Ok(memberAnswers);
             }

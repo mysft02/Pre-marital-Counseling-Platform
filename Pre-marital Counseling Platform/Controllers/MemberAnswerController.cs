@@ -19,22 +19,19 @@ namespace SWP391.Controllers
             _memberAnswerService = memberAnswerService;
         }
 
+        [HttpPost("Save")]
+        //public async Task<IActionResult> SaveMemberResult()
+
         [HttpGet("Get_All_Member_Answer")]
         public async Task<IActionResult> GetAllAnswers()
         {
-            var answers = await _memberAnswerService.GetAllMemberAnswers();
-            return Ok(answers);
+            return await _memberAnswerService.GetAllMemberAnswers();
         }
 
         [HttpGet("Get_All_Member_Answer/{id}")]
         public async Task<IActionResult> GetAnswerById(Guid id)
         {
-            var answer = await _memberAnswerService.GetMemberAnswerById(id);
-            if (answer == null)
-            {
-                return NotFound();
-            }
-            return Ok(answer);
+            return await _memberAnswerService.GetMemberAnswerById(id);
         }
 
         [Authorize]
@@ -42,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateMemberAnswer([FromBody] CreateMemberAnswerDTO memberAnswerDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberAnswerService.CreateMemberAnswer(memberAnswerDTO, userId);
         }
 
@@ -51,7 +48,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateMemberAnswer([FromBody] UpdateMemberAnswerDTO memberAnswerDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberAnswerService.UpdateMemberAnswer(memberAnswerDTO, userId);
         }
     }

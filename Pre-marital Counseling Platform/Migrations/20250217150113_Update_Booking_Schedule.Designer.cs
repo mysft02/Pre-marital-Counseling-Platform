@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SWP391.Infrastructure.DbContext;
 
@@ -11,9 +12,11 @@ using SWP391.Infrastructure.DbContext;
 namespace SWP391.Migrations
 {
     [DbContext(typeof(PmcsDbContext))]
-    partial class PmcsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250217150113_Update_Booking_Schedule")]
+    partial class Update_Booking_Schedule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,11 +282,6 @@ namespace SWP391.Migrations
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<decimal>("Fee")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
 
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");

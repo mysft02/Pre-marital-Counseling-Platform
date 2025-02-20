@@ -1,13 +1,11 @@
-﻿namespace SWP391.Domain
+﻿namespace SWP391.DTO.Slot
 {
-    public class Schedule
+    public class ScheduleDTO
     {
         public Guid ScheduleId { get; set; }
         public Guid TherapistId { get; set; }
         public DateTime Date { get; set; }
         public int Slot { get; set; }
         public bool IsAvailable { get; set; }
-        public Therapist Therapist { get; set; }
-        public List<Booking> Bookings { get; set; }
     }
 }

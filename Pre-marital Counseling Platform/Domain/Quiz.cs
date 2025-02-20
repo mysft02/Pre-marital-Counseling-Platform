@@ -10,5 +10,7 @@ namespace SWP391.Domain
         public string Description { get; set; }
         public QuizStatusEnum QuizStatus { get; set; }
         public Category Category { get; set; }
+        public List<Question> Questions { get; set; } 
+        public List<QuizResult> QuizResults { get; set; }
     }
 }

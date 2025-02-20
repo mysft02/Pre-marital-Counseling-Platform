@@ -20,13 +20,13 @@ namespace SWP391.Controllers
         [HttpGet("Get_All_Member_Result")]
         public async Task<IActionResult> GetAllMemberResults()
         {
-            return Ok(await _memberResultService.GetAllMemberResult());
+            return await _memberResultService.GetAllMemberResult();
         }
 
         [HttpGet("Get_Member_Result_By_Id")]
         public async Task<IActionResult> GetMemberResultById(Guid id)
         {
-            return Ok(await _memberResultService.GetMemberResultById(id));
+            return await _memberResultService.GetMemberResultById(id);
         }
 
         [Authorize]
@@ -34,7 +34,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateMemberResult([FromBody] CreateMemberResultDTO memberResultDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberResultService.CreateMemberResult(memberResultDTO, userId);
         }
 
@@ -43,7 +43,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateMemberResult([FromBody] UpdateMemberResultDTO memberResultDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
             return await _memberResultService.UpdateMemberResult(memberResultDTO, userId);
         }
     }

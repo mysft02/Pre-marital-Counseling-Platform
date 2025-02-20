@@ -80,6 +80,7 @@ namespace SWP391.Service
                     QuizId = dto.QuizId,
                     MemberId = dto.MemberId,
                     Score = dto.Score,
+                    QuizResultId = dto.QuizResultId
                 };
 
                 var check = true;

@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateBookingResult([FromBody] BookingResultCreateDTO bookingResultCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
 
             return await _bookingResultService.HandleCreateBookingResult(bookingResultCreateDTO, userId);
         }

@@ -9,5 +9,6 @@ namespace SWP391.Domain
         public string QuestionContent { get; set; }
         public QuestionStatusEnum Status { get; set; }
         public Quiz Quiz { get; set; }
+        public List<Answer> Answers { get; set; } 
     }
 }

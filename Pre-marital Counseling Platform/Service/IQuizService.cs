@@ -30,7 +30,6 @@ namespace SWP391.Service
         {
             try
             {
-                List<QuizDTO> quizzes = new List<QuizDTO>();
                 var Quizzes = _context.Quizes
                     .Include(x => x.Category)
                     .ToList();
@@ -46,7 +45,9 @@ namespace SWP391.Service
             {
                 var Quiz = _context.Quizes
                     .Where(x => x.QuizId == id)
-                    .Include(x => x.Category);
+                    .Include(x => x.Category)
+                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .FirstOrDefault();
 
                 return Ok(Quiz);
             }

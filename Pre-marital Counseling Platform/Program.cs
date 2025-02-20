@@ -5,12 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using SWP391.Service;
 using SWP391.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
+
 
 builder.Services.AddCors(options =>
 {
@@ -89,6 +88,9 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+builder.Services.AddControllersWithViews()
+    .AddJsonOptions(options => options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IQuizService, QuizService>();
@@ -101,6 +103,8 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<IMemberAnswerService, MemberAnswerService>();
 builder.Services.AddScoped<IMemberResultService, MemberResultService>();
 builder.Services.AddScoped<IAnswerService, AnswerSevice>();
+builder.Services.AddScoped<ITherapistService, TherapistService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
 
 var app = builder.Build();
 

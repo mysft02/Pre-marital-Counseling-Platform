@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SWP391.Infrastructure.DbContext;
 
@@ -11,9 +12,11 @@ using SWP391.Infrastructure.DbContext;
 namespace SWP391.Migrations
 {
     [DbContext(typeof(PmcsDbContext))]
-    partial class PmcsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250217115320_Update_List_Quiz_Question_Answer_Category")]
+    partial class Update_List_Quiz_Question_Answer_Category
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -280,18 +283,13 @@ namespace SWP391.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Fee")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("decimal(18,2)")
-                        .HasDefaultValue(0m);
-
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MemberResultId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ScheduleId")
+                    b.Property<Guid>("SlotId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
@@ -317,7 +315,7 @@ namespace SWP391.Migrations
 
                     b.HasIndex("MemberResultId");
 
-                    b.HasIndex("ScheduleId");
+                    b.HasIndex("SlotId");
 
                     b.HasIndex("TherapistId");
 
@@ -450,11 +448,10 @@ namespace SWP391.Migrations
 
             modelBuilder.Entity("SWP391.Domain.MemberAnswer", b =>
                 {
-                    b.Property<Guid>("MemberAnswerId")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("AnswerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AnswerId")
+                    b.Property<Guid>("MemberAnswerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("MemberId")
@@ -463,9 +460,7 @@ namespace SWP391.Migrations
                     b.Property<Guid?>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("MemberAnswerId");
-
-                    b.HasIndex("AnswerId");
+                    b.HasKey("AnswerId");
 
                     b.HasIndex("MemberId");
 
@@ -732,11 +727,6 @@ namespace SWP391.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -994,9 +984,9 @@ namespace SWP391.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("SWP391.Domain.Schedule", "Schedule")
-                        .WithMany("Bookings")
-                        .HasForeignKey("ScheduleId")
+                    b.HasOne("SWP391.Domain.Schedule", "Slot")
+                        .WithMany()
+                        .HasForeignKey("SlotId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
@@ -1016,7 +1006,7 @@ namespace SWP391.Migrations
 
                     b.Navigation("MemberResult");
 
-                    b.Navigation("Schedule");
+                    b.Navigation("Slot");
 
                     b.Navigation("Therapist");
 
@@ -1219,7 +1209,7 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.Schedule", b =>
                 {
                     b.HasOne("SWP391.Domain.Therapist", "Therapist")
-                        .WithMany("Schedules")
+                        .WithMany()
                         .HasForeignKey("TherapistId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1310,16 +1300,6 @@ namespace SWP391.Migrations
                     b.Navigation("Questions");
 
                     b.Navigation("QuizResults");
-                });
-
-            modelBuilder.Entity("SWP391.Domain.Schedule", b =>
-                {
-                    b.Navigation("Bookings");
-                });
-
-            modelBuilder.Entity("SWP391.Domain.Therapist", b =>
-                {
-                    b.Navigation("Schedules");
                 });
 #pragma warning restore 612, 618
         }
