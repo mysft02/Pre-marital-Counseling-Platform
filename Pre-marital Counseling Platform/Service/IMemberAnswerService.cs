@@ -1,10 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.MemberAnswer;
+using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using System;
 using Microsoft.AspNetCore.Http.HttpResults;
+using SWP391.DTO;
+using AutoMapper;
 
 namespace SWP391.Service
 {
@@ -15,20 +17,22 @@ namespace SWP391.Service
         Task<IActionResult> GetMemberAnswerById(Guid id);
         Task<IActionResult> CreateMemberAnswer(CreateMemberAnswerDTO createMemberAnswerDTO, string? userId);
         Task<IActionResult> UpdateMemberAnswer(UpdateMemberAnswerDTO updateMemberAnswerDTO, string? userId);
-        Task<IActionResult> SaveMemberAnswer(SaveMemberAnswerDTO dto, string? userId);
+        Task<IActionResult> SaveMemberAnswer(List<CreateMemberAnswerDTO> dto, string? userId);
 
     }
 
     public class MemberAnswerService : ControllerBase, IMemberAnswerService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public MemberAnswerService(PmcsDbContext context)
+        public MemberAnswerService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<IActionResult> SaveMemberAnswer(SaveMemberAnswerDTO dto, string? userId)
+        public async Task<IActionResult> SaveMemberAnswer(List<CreateMemberAnswerDTO> dto, string? userId)
         {
             if (dto == null)
             {
@@ -37,18 +41,15 @@ namespace SWP391.Service
 
             try
             {
-                var memberAnswer = new MemberAnswer
+                foreach(var item in dto)
                 {
-                    AnswerId = dto.AnswerId,
-                    MemberAnswerId = dto.MemberAnswerId,
-                    MemberId = dto.MemberId,
-                    QuestionId = dto.QuestionId,
-                };
+                    var memberAnswerMappper = _mapper.Map<MemberAnswer>(item);
+                    _context.MemberAnswers.Add(memberAnswerMappper);
+                }
 
-                await _context.MemberAnswers.AddAsync(memberAnswer);
                 if(_context.SaveChanges() > 0)
                 {
-                    return Ok(memberAnswer);
+                    return Ok("Save Successfully");
                 }else
                 {
                     return BadRequest("Failed to save");
@@ -58,6 +59,10 @@ namespace SWP391.Service
             }
             catch (Exception ex)
             {
+                if(ex.InnerException != null)
+                {
+                    Console.WriteLine(ex.InnerException.Message);
+                }
                 return BadRequest(ex.InnerException.Message);
             }
         }

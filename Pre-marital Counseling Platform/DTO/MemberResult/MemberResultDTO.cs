@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.MemberResult
+﻿namespace SWP391.DTO
 {
     public class MemberResultDTO
     {

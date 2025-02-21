@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.MemberResult;
+using SWP391.DTO;
 using SWP391.Service;
 using System.Security.Claims;
 
@@ -48,7 +48,7 @@ namespace SWP391.Controllers
         }
 
         [HttpPost("Calculate_Member_Result")]
-        public async Task<IActionResult> CalculateMemberResult([FromBody] CalculateMemberResultDTO calculateMemberResultDTO)
+        public async Task<IActionResult> CalculateMemberResult([FromBody] CreateMemberResultDTO calculateMemberResultDTO)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
