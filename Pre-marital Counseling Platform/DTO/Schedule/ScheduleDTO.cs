@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Slot
+﻿namespace SWP391.DTO
 {
     public class ScheduleDTO
     {

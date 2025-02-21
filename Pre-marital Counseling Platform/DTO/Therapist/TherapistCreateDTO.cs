@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Therapist
+﻿namespace SWP391.DTO
 {
     public class TherapistCreateDTO
     {

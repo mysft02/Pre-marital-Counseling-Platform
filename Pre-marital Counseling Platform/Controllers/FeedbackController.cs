@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateFeedback([FromBody] FeedbackCreateDTO feedbackCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _feedbackService.HandleCreateFeedback(feedbackCreateDTO, userId);
         }
@@ -49,7 +49,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateFeedback([FromBody] FeedbackUpdateDTO feedbackUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _feedbackService.HandleUpdateFeedback(feedbackUpdateDTO, userId);
         }

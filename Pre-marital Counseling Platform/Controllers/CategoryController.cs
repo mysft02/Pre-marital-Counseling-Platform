@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateQuiz([FromBody] CategoryCreateDTO categoryCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _categoryService.HandleCreateCategory(categoryCreateDTO, userId);
         }
@@ -49,7 +49,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateCategory([FromBody] CategoryUpdateDTO categoryUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _categoryService.HandleUpdateCategory(categoryUpdateDTO, userId);
         }

@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateQuiz([FromBody] QuizCreateDTO quizCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _quizService.HandleCreateQuiz(quizCreateDTO, userId);
         }
@@ -49,7 +49,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateQuiz([FromBody] QuizUpdateDTO quizUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _quizService.HandleUpdateQuiz(quizUpdateDTO, userId);
         }

@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
-using SWP391.DTO.Quiz;
-using SWP391.DTO.Schedule;
-using SWP391.Infrastructure.DataEnum;
+using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 
 namespace SWP391.Service
@@ -101,9 +99,16 @@ namespace SWP391.Service
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        public Task<IActionResult> HandleUpdateSchedule(ScheduleUpdateDTO scheduleUpdateDTO, string? userId)
+        public async Task<IActionResult> HandleUpdateSchedule(ScheduleUpdateDTO scheduleUpdateDTO, string? userId)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var schedule = _context.Schedules
+                    .Where(x => x.ScheduleId == scheduleUpdateDTO.ScheduleId);
+
+                return Ok(schedule);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
         }
     }
 }

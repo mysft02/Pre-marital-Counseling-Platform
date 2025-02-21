@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SWP391.Infrastructure.DbContext;
 
@@ -11,9 +12,11 @@ using SWP391.Infrastructure.DbContext;
 namespace SWP391.Migrations
 {
     [DbContext(typeof(PmcsDbContext))]
-    partial class PmcsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250221040531_Update Therapist_Specification")]
+    partial class UpdateTherapist_Specification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1261,13 +1264,13 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.TherapistSpecification", b =>
                 {
                     b.HasOne("SWP391.Domain.Specification", "Specification")
-                        .WithMany("Therapists")
+                        .WithMany()
                         .HasForeignKey("SpecificationId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("SWP391.Domain.Therapist", "Therapist")
-                        .WithMany("Specialty")
+                        .WithMany()
                         .HasForeignKey("TherapistId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1338,16 +1341,9 @@ namespace SWP391.Migrations
                     b.Navigation("Bookings");
                 });
 
-            modelBuilder.Entity("SWP391.Domain.Specification", b =>
-                {
-                    b.Navigation("Therapists");
-                });
-
             modelBuilder.Entity("SWP391.Domain.Therapist", b =>
                 {
                     b.Navigation("Schedules");
-
-                    b.Navigation("Specialty");
                 });
 #pragma warning restore 612, 618
         }

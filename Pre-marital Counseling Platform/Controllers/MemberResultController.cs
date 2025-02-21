@@ -34,7 +34,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateMemberResult([FromBody] CreateMemberResultDTO memberResultDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
             return await _memberResultService.CreateMemberResult(memberResultDTO, userId);
         }
 
@@ -43,7 +43,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateMemberResult([FromBody] UpdateMemberResultDTO memberResultDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
             return await _memberResultService.UpdateMemberResult(memberResultDTO, userId);
         }
     }

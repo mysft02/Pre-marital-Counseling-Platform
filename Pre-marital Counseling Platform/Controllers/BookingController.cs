@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDTO bookingCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _bookingService.HandleCreateBooking(bookingCreateDTO, userId);
         }
@@ -49,7 +49,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _bookingService.HandleUpdateBooking(bookingUpdateDTO, userId);
         }
@@ -59,7 +59,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CancelBooking([FromQuery] Guid id)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _bookingService.HandleCancelBooking(id, userId);
         }
@@ -69,7 +69,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CloseBooking([FromQuery] Guid id)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _bookingService.HandleCloseBooking(id, userId);
         }
