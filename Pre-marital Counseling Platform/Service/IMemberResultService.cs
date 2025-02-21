@@ -13,6 +13,7 @@ namespace SWP391.Service
         Task<IActionResult> GetMemberResultById(Guid id);
         Task<IActionResult> CreateMemberResult(CreateMemberResultDTO dto, string? userId);
         Task<IActionResult> UpdateMemberResult(UpdateMemberResultDTO dto, string? userId);
+        Task<IActionResult> CalculateMemberResult(CalculateMemberResultDTO dto, string? userId);
     }
 
     public class MemberResultService : ControllerBase, IMemberResultService
@@ -137,6 +138,53 @@ namespace SWP391.Service
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> CalculateMemberResult(CalculateMemberResultDTO dto, string? userId)
+        {
+            if (dto == null)
+            {
+                return BadRequest("Invalid data.");
+            }
+            try
+            {
+
+                var memberAnswers = _context.
+                    MemberAnswers.
+                    Where(x => x.MemberId == dto.MemberId && x.Question.QuizId == dto.QuizId).ToList();
+
+                decimal totalScore = 0;
+                foreach (var memberAnswer in memberAnswers)
+                {
+                    var answer = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == memberAnswer.AnswerId);
+                    if (answer != null)
+                    {
+                        totalScore += answer.Score;
+                    }
+                }
+
+                var memberResult = new MemberResult()
+                {
+                    MemberResultId = dto.MemberResultId,
+                    QuizId = dto.QuizId,
+                    MemberId = dto.MemberId,
+                    QuizResultId = dto.QuizResultId,
+                    Score = totalScore,
+                };
+                await _context.MemberResults.AddAsync(memberResult);
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(memberResult);
+                }
+                else
+                {
+                    return BadRequest("Failed to save");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.InnerException.Message);
             }
         }
     }
