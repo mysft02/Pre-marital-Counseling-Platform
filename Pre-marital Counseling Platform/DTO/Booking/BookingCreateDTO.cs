@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Booking
+﻿namespace SWP391.DTO
 {
     public class BookingCreateDTO
     {

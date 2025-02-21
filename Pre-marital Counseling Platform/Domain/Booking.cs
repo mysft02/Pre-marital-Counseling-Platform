@@ -12,7 +12,6 @@ namespace SWP391.Domain
         public decimal Fee { get; set; }
         public User User { get; set; }
         public Therapist Therapist { get; set; }
-        public MemberResult MemberResult { get; set; }
         public Schedule Schedule { get; set; }
         public Feedback Feedback { get; set; }
         public BookingResult BookingResult { get; set; }

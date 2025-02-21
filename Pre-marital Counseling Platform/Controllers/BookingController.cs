@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.Booking;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.Service;
 using System.Security.Claims;
@@ -44,15 +44,15 @@ namespace SWP391.Controllers
             return await _bookingService.HandleCreateBooking(bookingCreateDTO, userId);
         }
 
-        [Authorize]
-        [HttpPost("Update_Booking")]
-        public async Task<IActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
-        {
-            var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst("UserId")?.Value;
+        //[Authorize]
+        //[HttpPost("Update_Booking")]
+        //public async Task<IActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
+        //{
+        //    var currentUser = HttpContext.User;
+        //    var userId = currentUser.FindFirst("UserId")?.Value;
 
-            return await _bookingService.HandleUpdateBooking(bookingUpdateDTO, userId);
-        }
+        //    return await _bookingService.HandleUpdateBooking(bookingUpdateDTO, userId);
+        //}
 
         [Authorize]
         [HttpPost("Cancel_Booking")]

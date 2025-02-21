@@ -288,9 +288,6 @@ namespace SWP391.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("MemberResultId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -314,8 +311,6 @@ namespace SWP391.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("MemberId");
-
-                    b.HasIndex("MemberResultId");
 
                     b.HasIndex("ScheduleId");
 
@@ -1000,12 +995,6 @@ namespace SWP391.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("SWP391.Domain.MemberResult", "MemberResult")
-                        .WithMany()
-                        .HasForeignKey("MemberResultId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("SWP391.Domain.Schedule", "Schedule")
                         .WithMany("Bookings")
                         .HasForeignKey("ScheduleId")
@@ -1025,8 +1014,6 @@ namespace SWP391.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedUser");
-
-                    b.Navigation("MemberResult");
 
                     b.Navigation("Schedule");
 

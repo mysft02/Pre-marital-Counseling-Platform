@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
-using SWP391.DTO.Booking;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.DTO.Feedback;
 using SWP391.Infrastructure.DataEnum;

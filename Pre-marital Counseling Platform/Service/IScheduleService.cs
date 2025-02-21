@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
@@ -8,51 +9,38 @@ namespace SWP391.Service
 {
     public interface IScheduleService
     {
-        Task<IActionResult> HandleCreateSchedule(ScheduleCreateDTO scheduleCreateDTO, string? userId);
+        Task<IActionResult> HandleCreateSchedule(List<ScheduleCreateDTO> scheduleCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllSchedules();
         Task<IActionResult> HandleGetScheduleById(Guid id);
         Task<IActionResult> HandleGetScheduleByTherapistId(Guid id);
-        Task<IActionResult> HandleUpdateSchedule(ScheduleUpdateDTO scheduleUpdateDTO, string? userId);
+        Task<IActionResult> HandleUpdateSchedule(List<ScheduleUpdateDTO> scheduleUpdateDTO, string? userId);
     }
 
     public class ScheduleService : ControllerBase, IScheduleService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public ScheduleService(PmcsDbContext context)
+        public ScheduleService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
-        public async Task<IActionResult> HandleCreateSchedule(ScheduleCreateDTO scheduleCreateDTO, string? userId)
+        public async Task<IActionResult> HandleCreateSchedule(List<ScheduleCreateDTO> scheduleCreateDTO, string? userId)
         {
             try
             {
-                var schedule = new Schedule
+                foreach(var item in scheduleCreateDTO)
                 {
-                    TherapistId = scheduleCreateDTO.TherapistId,
-                    Date = scheduleCreateDTO.Date,
-                    Slot = scheduleCreateDTO.Slot,
-                    IsAvailable = scheduleCreateDTO.IsAvailable,
-                };
-
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Schedules.FirstOrDefault(x => x.ScheduleId == id);
-                    if (checkId == null)
-                    {
-                        schedule.ScheduleId = id;
-                        check = false;
-                    }
+                    var scheduleMapped = _mapper.Map<Schedule>(item);
+                    _context.Schedules.Add(scheduleMapped);
                 }
 
-                _context.Schedules.Add(schedule);
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {
-                    return Ok(schedule);
+                    return Ok("Create Successfully");
                 }
                 else
                 {
@@ -99,14 +87,26 @@ namespace SWP391.Service
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        public async Task<IActionResult> HandleUpdateSchedule(ScheduleUpdateDTO scheduleUpdateDTO, string? userId)
+        public async Task<IActionResult> HandleUpdateSchedule(List<ScheduleUpdateDTO> scheduleUpdateDTO, string? userId)
         {
             try
             {
-                var schedule = _context.Schedules
-                    .Where(x => x.ScheduleId == scheduleUpdateDTO.ScheduleId);
+                var schedule = _context.Schedules.AsQueryable();
 
-                return Ok(schedule);
+                foreach (var item in scheduleUpdateDTO)
+                {
+                    var scheduleMapped = _mapper.Map<Schedule>(item);
+                    _context.Schedules.Update(scheduleMapped);
+                }
+
+                if(_context.SaveChanges() > 0)
+                {
+                    return Ok(schedule);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }

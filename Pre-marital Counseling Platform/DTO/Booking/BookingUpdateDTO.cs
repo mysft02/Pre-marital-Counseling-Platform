@@ -1,6 +1,6 @@
 ﻿using SWP391.Infrastructure.DataEnum;
 
-namespace SWP391.DTO.Booking
+namespace SWP391.DTO
 {
     public class BookingUpdateDTO
     {

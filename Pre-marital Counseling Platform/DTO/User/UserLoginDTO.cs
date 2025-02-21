@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Runtime.CompilerServices;
 
-namespace SWP391.DTO.User
+namespace SWP391.DTO
 {
     public class UserLoginDTO
     {

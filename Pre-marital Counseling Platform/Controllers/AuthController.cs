@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.User;
+using SWP391.DTO;
 using SWP391.Service;
 
 namespace SWP391.Controllers

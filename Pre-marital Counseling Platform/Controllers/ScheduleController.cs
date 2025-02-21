@@ -52,7 +52,7 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Create_Schedule")]
-        public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateDTO scheduleCreateDTO)
+        public async Task<IActionResult> CreateSchedule([FromBody] List<ScheduleCreateDTO> scheduleCreateDTO)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
@@ -62,7 +62,7 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Update_Schedule")]
-        public async Task<IActionResult> UpdateSchedule([FromBody] ScheduleUpdateDTO scheduleUpdateDTO)
+        public async Task<IActionResult> UpdateSchedule([FromBody] List<ScheduleUpdateDTO> scheduleUpdateDTO)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;

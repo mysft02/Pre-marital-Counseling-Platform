@@ -1,6 +1,6 @@
 ﻿using SWP391.Infrastructure.DataEnum;
 
-namespace SWP391.DTO.User
+namespace SWP391.DTO
 {
     public class UserRegisterDTO
     {

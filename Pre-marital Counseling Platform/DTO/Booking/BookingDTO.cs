@@ -1,7 +1,8 @@
-﻿using SWP391.Domain;
+﻿using AutoMapper;
+using SWP391.Domain;
 using SWP391.Infrastructure.DataEnum;
 
-namespace SWP391.DTO.Booking
+namespace SWP391.DTO
 {
     public class BookingDTO
     {
@@ -12,7 +13,15 @@ namespace SWP391.DTO.Booking
         public BookingStatusEnum Status { get; set; }
     }
 
-    
+    public class BookingProfile : Profile
+    {
+        public BookingProfile()
+        {
+            CreateMap<Booking, BookingDTO>();
+            CreateMap<Booking, BookingCreateDTO>().ReverseMap();
+            CreateMap<Booking, BookingUpdateDTO>().ReverseMap();
+        }
+    }
 }
 
 public class BookingReturnDTO
