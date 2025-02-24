@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Question
+﻿namespace SWP391.DTO
 {
     public class QuestionCreateDTO
     {

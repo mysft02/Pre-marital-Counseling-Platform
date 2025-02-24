@@ -194,32 +194,20 @@ namespace SWP391.Service
 
                 if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId.ToString())
                 {
-                    var transaction = new Transaction
+                    var transaction = new TransactionDTO
                     {
                         Amount = +booking.Fee,
                         Description = "Cancel booking",
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        CreatedBy = booking.MemberId,
-                        UpdatedBy = booking.MemberId
                     };
 
-                    var transactionQuery = _context.Transactions.AsQueryable();
-
-                    var checkId = true;
-                    while (checkId)
-                    {
-                        Guid transactionId = Guid.NewGuid();
-                        var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
-                        if (check == null)
-                        {
-                            transaction.TransactionId = transactionId;
-                            checkId = false;
-                        }
-                    }
+                    var transactionMapped = _mapper.Map<Transaction>(transaction);
+                    transactionMapped.CreatedBy = Guid.Parse(userId);
+                    transactionMapped.UpdatedAt = DateTime.Now;
+                    transactionMapped.UpdatedBy = Guid.Parse(userId);
+                    transactionMapped.CreatedAt = DateTime.Now;
 
                     message = "Returned!";
-                    _context.Transactions.Add(transaction);
+                    _context.Transactions.Add(transactionMapped);
 
                     var wallet = _context.Wallets.FirstOrDefault(e => e.UserId == booking.MemberId);
                     wallet.Balance += booking.Fee;
@@ -276,28 +264,19 @@ namespace SWP391.Service
 
                 var transactionQuery = _context.Transactions.AsQueryable();
 
-                var transaction = new Transaction
+                var transaction = new TransactionDTO
                 {
                     Amount = +booking.Fee,
                     Description = "Finish booking",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = booking.TherapistId,
-                    UpdatedBy = booking.TherapistId
                 };
 
-                var checkId = true;
-                while (checkId)
-                {
-                    Guid transactionId = Guid.NewGuid();
-                    var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
-                    if (check == null)
-                    {
-                        transaction.TransactionId = transactionId;
-                        checkId = false;
-                    }
-                }
-                _context.Transactions.Add(transaction);
+                var transactionMapped = _mapper.Map<Transaction>(transaction);
+                transactionMapped.CreatedBy = booking.TherapistId;
+                transactionMapped.UpdatedAt = DateTime.Now;
+                transactionMapped.UpdatedBy = booking.TherapistId;
+                transactionMapped.CreatedAt = DateTime.Now;
+
+                _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
                 wallet.Balance += booking.Fee;

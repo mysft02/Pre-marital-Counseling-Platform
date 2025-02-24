@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Feedback
+﻿namespace SWP391.DTO
 {
     public class FeedbackCreateDTO
     {

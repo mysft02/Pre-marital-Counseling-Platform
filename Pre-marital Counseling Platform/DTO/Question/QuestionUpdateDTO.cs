@@ -1,6 +1,6 @@
 ﻿using SWP391.Infrastructure.DataEnum;
 
-namespace SWP391.DTO.Question
+namespace SWP391.DTO
 {
     public class QuestionUpdateDTO
     {
