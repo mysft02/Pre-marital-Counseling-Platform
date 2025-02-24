@@ -1,6 +1,6 @@
 ﻿using SWP391.Domain;
 
-namespace SWP391.DTO.MemberAnswer
+namespace SWP391.DTO
 {
     public class MemberAnswerDTO
     {
