@@ -32,6 +32,8 @@ namespace SWP391.Service
             {
                 var Quizzes = _context.Quizes
                     .Include(x => x.Category)
+                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.QuizResults)
                     .ToList();
 
                 return Ok(Quizzes);
@@ -47,6 +49,7 @@ namespace SWP391.Service
                     .Where(x => x.QuizId == id)
                     .Include(x => x.Category)
                     .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.QuizResults)
                     .FirstOrDefault();
 
                 return Ok(Quiz);

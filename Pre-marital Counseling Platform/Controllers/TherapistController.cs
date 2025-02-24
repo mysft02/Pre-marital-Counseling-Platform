@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.Booking;
-using SWP391.DTO.Therapist;
+using SWP391.DTO;
 using SWP391.Service;
 using System.Security.Claims;
 
@@ -34,14 +33,14 @@ namespace SWP391.Controllers
             return await _therapistService.HandleGetTherapistById(id);
         }
 
-        //[Authorize]
-        //[HttpPost("Create_Therapist")]
-        //public async Task<IActionResult> CreateTherapist([FromBody] TherapistCreateDTO therapistCreateDTO)
-        //{
-        //    var currentUser = HttpContext.User;
-        //    var userId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        [Authorize]
+        [HttpPost("Update_Therapist")]
+        public async Task<IActionResult> UpdateTherapist([FromBody] TherapistUpdateDTO therapistUpdateDTO)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
-        //    return await _therapistService.HandleCreateTherapist(therapistCreateDTO, userId);
-        //}
+            return await _therapistService.HandleUpdateTherapist(therapistUpdateDTO, userId);
+        }
     }
 }

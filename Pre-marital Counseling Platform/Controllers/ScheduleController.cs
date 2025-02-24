@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.Quiz;
-using SWP391.DTO.Schedule;
+using SWP391.DTO;
+using SWP391.Infrastructure.DataEnum;
 using SWP391.Service;
 using System.Security.Claims;
 
@@ -35,21 +35,37 @@ namespace SWP391.Controllers
         }
 
         [Authorize]
-        [HttpPost("Create_Schedule")]
-        public async Task<IActionResult> CreateSchedule([FromBody] ScheduleCreateDTO scheduleCreateDTO)
+        [HttpGet("Get_Schedule_By_TherapistId")]
+        public async Task<IActionResult> GetScheduleByTherapistId()
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+            var userRole = currentUser.FindFirst("Role")?.Value;
+
+            if (userRole != UserRoleEnum.THERAPIST.ToString())
+            {
+                return Unauthorized("User is not a therapist!");
+            }
+
+            return await _scheduleService.HandleGetScheduleByTherapistId(Guid.Parse(userId));
+        }
+
+        [Authorize]
+        [HttpPost("Create_Schedule")]
+        public async Task<IActionResult> CreateSchedule([FromBody] List<ScheduleCreateDTO> scheduleCreateDTO)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _scheduleService.HandleCreateSchedule(scheduleCreateDTO, userId);
         }
 
         [Authorize]
         [HttpPost("Update_Schedule")]
-        public async Task<IActionResult> UpdateSchedule([FromBody] ScheduleUpdateDTO scheduleUpdateDTO)
+        public async Task<IActionResult> UpdateSchedule([FromBody] List<ScheduleUpdateDTO> scheduleUpdateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _scheduleService.HandleUpdateSchedule(scheduleUpdateDTO, userId);
         }

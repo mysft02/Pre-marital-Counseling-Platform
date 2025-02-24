@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.DTO.Quiz;
-using SWP391.DTO.Therapist;
+using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 
 namespace SWP391.Service
@@ -10,6 +10,7 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleGetAllTherapists();
         Task<IActionResult> HandleGetTherapistById(Guid id);
+        Task<IActionResult> HandleUpdateTherapist(TherapistUpdateDTO therapistUpdateDTO, string? userId);
     }
 
     public class TherapistService : ControllerBase, ITherapistService
@@ -26,6 +27,8 @@ namespace SWP391.Service
             try
             {
                 var therapists = _context.Therapists
+                    .Include(c => c.Schedules)
+                    .Include(c => c.Specialty)
                     .ToList();
 
                 return Ok(therapists);
@@ -37,10 +40,41 @@ namespace SWP391.Service
         {
             try
             {
-                var therapist = _context.Therapists
-                    .Where(x => x.TherapistId == id);
+                var therapist = _context.Therapists 
+                    .Include(c => c.Schedules)
+                    .Include(c => c.Specialty)
+                    .FirstOrDefault(x => x.TherapistId == id);
 
                 return Ok(therapist);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleUpdateTherapist(TherapistUpdateDTO therapistUpdateDTO, string? userId)
+        {
+            try
+            {
+                var therapist = _context.Therapists
+                    .Include(c => c.Schedules)
+                    .Include(c => c.Specialty)
+                    .FirstOrDefault(x => x.TherapistId == therapistUpdateDTO.TherapistId);
+
+                therapist.UpdatedBy = Guid.Parse(userId);
+                therapist.UpdatedAt = DateTime.Now;
+                therapist.Avatar = therapistUpdateDTO.Avatar;
+                therapist.ConsultationFee = therapistUpdateDTO.ConsultationFee;
+                therapist.Status = therapistUpdateDTO.Status;
+                therapist.Description = therapistUpdateDTO.Description;
+
+                _context.Therapists.Update(therapist);
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(therapist);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }

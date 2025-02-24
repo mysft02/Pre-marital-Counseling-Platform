@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Category
+﻿namespace SWP391.DTO
 {
     public class CategoryCreateDTO
     {

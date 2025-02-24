@@ -1,9 +1,11 @@
-﻿using Google;
+﻿using AutoMapper;
+using FirebaseAdmin.Auth;
+using Google;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using SWP391.Domain;
-using SWP391.DTO.User;
+using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 using SWP391.Migrations;
@@ -25,90 +27,62 @@ namespace SWP391.Service
         private readonly JwtService _jwtService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMemoryCache _cache;
+        private readonly IMapper _mapper;
 
-        public AuthService(PmcsDbContext context, IConfiguration config, JwtService jwtService, IHttpContextAccessor httpContextAccessor, IMemoryCache cache)
+        public AuthService(PmcsDbContext context, IMapper mapper, IConfiguration config, JwtService jwtService, IHttpContextAccessor httpContextAccessor, IMemoryCache cache)
         {
             _context = context;
             _config = config;
             _jwtService = jwtService;
             _httpContextAccessor = httpContextAccessor;
             _cache = cache;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleRegister(UserRegisterDTO userRegisterDTO)
         {
             try
             {
-                var createdUser = new User();
-
                 var userDuplicate = _context.Users.FirstOrDefault(x => x.Email == userRegisterDTO.Email);
 
                 if(userDuplicate != null) { return BadRequest("Email already exists"); }
 
-                createdUser.FullName = userRegisterDTO.FullName;
-                createdUser.Phone = userRegisterDTO.Phone;
-                createdUser.Email = userRegisterDTO.Email;
-                createdUser.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
-                createdUser.Role = userRegisterDTO.Role;
+                var userMapped = _mapper.Map<User>(userRegisterDTO);
+                userMapped.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
+                userMapped.IsActive = true;
 
-                var check = true;
+                _context.Add(userMapped);
 
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Users.FirstOrDefault(x => x.UserId == id);
-                    if (checkId == null)
-                    {
-                        createdUser.UserId = id;
-                        check = false;
-                    }
-                }
-
-                createdUser.IsActive = true;
-                createdUser.CreatedAt = DateTime.Now;
-                createdUser.UpdatedAt = DateTime.Now;
-                createdUser.CreatedBy = createdUser.UserId;
-                createdUser.UpdatedBy = createdUser.UserId;
-
-                _context.Add(createdUser);
-
-                if(createdUser.Role == UserRoleEnum.THERAPIST)
+                if(userMapped.Role == UserRoleEnum.THERAPIST)
                 {
                     var createdTherapist = new Therapist
                     {
-                        TherapistId = createdUser.UserId,
+                        TherapistId = userMapped.UserId,
                         ConsultationFee = 0,
                         CreatedAt = DateTime.Now,
                         UpdatedAt = DateTime.Now,
-                        CreatedBy = createdUser.UserId,
-                        UpdatedBy = createdUser.UserId
+                        Description = "No description",
+                        Status = true,
+                        Avatar = "Pending",
+                        CreatedBy = userMapped.UserId,
+                        UpdatedBy = userMapped.UserId
                     };
                     _context.Add(createdTherapist);
                 }
 
-                var wallet = new Wallet
+                var wallet = new WalletCreateDTO
                 {
-                    UserId = createdUser.UserId,
-                    Balance = 0
-                }
+                    UserId = userMapped.UserId,
+                    Balance = 0,
+                };
 
-                var checkWallet = true;
-                while(checkWallet)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Wallets.FirstOrDefault(x => x.UserId == id);
-                    if (checkId == null)
-                    {
-                        wallet.WalletId = id;
-                        check = false;
-                    }
-                }
-                _context.Wallets.Add(wallet);
+                var walletMapped = _mapper.Map<Wallet>(wallet);
+                _context.Wallets.Add(walletMapped);
 
                 await _context.SaveChangesAsync();
 
                 // Trả về thông tin người dùng mới đã đăng ký
-                return Ok(createdUser);
+                return Ok(userMapped);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
@@ -126,11 +100,11 @@ namespace SWP391.Service
 
                 var claims = new List<Claim>
                 {
-                    new Claim(ClaimTypes.Sid, loginUser.UserId.ToString()),
-                    new Claim(ClaimTypes.NameIdentifier, loginUser.FullName),
-                    new Claim(ClaimTypes.Email, loginUser.Email),
-                    new Claim(ClaimTypes.MobilePhone, loginUser.Phone),
-                    new Claim(ClaimTypes.Role, loginUser.Role.ToString())
+                    new Claim("UserId", loginUser.UserId.ToString()),
+                    new Claim("Name", loginUser.FullName),
+                    new Claim("Email", loginUser.Email),
+                    new Claim("Phone", loginUser.Phone),
+                    new Claim("Role", loginUser.Role.ToString())
                 };
 
                 // Tạo access token

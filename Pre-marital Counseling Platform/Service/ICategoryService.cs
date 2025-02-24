@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.DTO.Quiz;
 using SWP391.Infrastructure.DataEnum;
@@ -18,10 +20,12 @@ namespace SWP391.Service
     public class CategoryService : ControllerBase, ICategoryService
     {
         private readonly PmcsDbContext _context;
+        private IMapper _mapper;
 
-        public CategoryService(PmcsDbContext context)
+        public CategoryService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleGetAllCategories()
@@ -67,34 +71,25 @@ namespace SWP391.Service
         {
             try
             {
-                var Category = new Category
+                var category = new CategoryDTO
                 {
                     Name = categoryCreateDTO.Name,
                     Description = categoryCreateDTO.Description,
                     Status = CategoryStatusEnum.ACTIVE,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(userId),
-                    UpdatedBy = Guid.Parse(userId)
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Categories.FirstOrDefault(x => x.CategoryId == id);
-                    if (checkId == null)
-                    {
-                        Category.CategoryId = id;
-                        check = false;
-                    }
-                }
+                var categoryMapped = _mapper.Map<Category>(category);
+                categoryMapped.CreatedAt = DateTime.Now;
+                categoryMapped.UpdatedAt = DateTime.Now;
+                categoryMapped.CreatedBy = Guid.Parse(userId);
+                categoryMapped.UpdatedBy = Guid.Parse(userId);
 
-                _context.Categories.Add(Category);
+                _context.Categories.Add(categoryMapped);
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {
-                    return Ok(Category);
+                    return Ok(categoryMapped);
+                    return Ok(categoryMapped);
                 }
                 else
                 {

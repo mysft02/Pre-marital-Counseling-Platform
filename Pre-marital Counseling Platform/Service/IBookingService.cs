@@ -1,8 +1,9 @@
-﻿using FirebaseAdmin.Messaging;
+﻿using AutoMapper;
+using FirebaseAdmin.Messaging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
-using SWP391.DTO.Booking;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
@@ -22,10 +23,12 @@ namespace SWP391.Service
     public class BookingService : ControllerBase, IBookingService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BookingService(PmcsDbContext context)
+        public BookingService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleGetAllBookings()
@@ -39,7 +42,6 @@ namespace SWP391.Service
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
-                        MemberResultId = x.MemberResultId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
@@ -60,7 +62,6 @@ namespace SWP391.Service
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
-                        MemberResultId = x.MemberResultId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status
                     })
@@ -89,82 +90,57 @@ namespace SWP391.Service
                     return BadRequest("Member unauthorized!");
                 }
 
-                if(_context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId) == null)
+                var therapist = _context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId);
+                if(therapist == null)
                 {
                     return BadRequest("Therapist not found!");
                 }
 
                 var bookingQuery = _context.Bookings.AsQueryable();
 
-                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) == null)
+                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) != null)
                 {
                     return BadRequest("Slot is not available!");
                 }
 
-                var booking = new Booking
+                var bookingMapped = _mapper.Map<Booking>(bookingCreateDTO);
+                bookingMapped.CreatedAt = DateTime.Now;
+                bookingMapped.UpdatedAt = DateTime.Now;
+                bookingMapped.CreatedBy = Guid.Parse(userId);
+                bookingMapped.UpdatedBy = Guid.Parse(userId);
+                bookingMapped.Status = BookingStatusEnum.PENDING;
+                bookingMapped.Fee = therapist.ConsultationFee;
+
+                _context.Bookings.Add(bookingMapped);
+
+                var transaction = new TransactionCreateDTO
                 {
-                    MemberId = bookingCreateDTO.MemberId,
-                    TherapistId = bookingCreateDTO.TherapistId,
-                    MemberResultId = bookingCreateDTO.MemberResultId,
-                    Status = BookingStatusEnum.PENDING,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(userId),
-                    UpdatedBy = Guid.Parse(userId)
+                    Amount = -therapist.ConsultationFee,
+                    Description = "Order booking",
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Bookings.FirstOrDefault(x => x.BookingId == id);
-                    if (checkId == null)
-                    {
-                        booking.BookingId = id;
-                        check = false;
-                    }
-                }
+                var transactionMapped = _mapper.Map<Transaction>(transaction);
+                transactionMapped.CreatedAt = DateTime.Now;
+                transactionMapped.UpdatedAt = DateTime.Now;
+                transactionMapped.CreatedBy = Guid.Parse(userId);
+                transactionMapped.UpdatedBy = Guid.Parse(userId);
 
-                _context.Bookings.Add(booking);
-
-                var transaction = new Transaction
-                {
-                    Amount = -booking.Fee,
-                    Description = "Order booking",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(booking.MemberId),
-                    UpdatedBy = Guid.Parse(booking.MemberId)
-                }
-
-
-                var checkTransaction = true;
-                while(checkTransaction)
-                {
-                    var id = Guid.NewGuid();
-                    var check = _context.Transactions.FirstOrDefault(c => c.TransactionId == id);
-                    if(check == null)
-                    {
-                        transaction.TransactionId = id;
-                        check = false;
-                    }
-                }
-                _context.Transactions.Add(transaction);
+                _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == member.UserId);
 
-                if(wallet.Balance < booking.Fee)
+                if(wallet.Balance < bookingMapped.Fee)
                 {
                     return BadRequest("Balance not enough!");
                 }
 
-                wallet.Balance -= booking.Fee;
+                wallet.Balance -= therapist.ConsultationFee;
                 _context.Wallets.Update(wallet);
 
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {
-                    return Ok(booking);
+                    return Ok(bookingMapped);
                 }
                 else
                 {
@@ -178,20 +154,15 @@ namespace SWP391.Service
         {
             try
             {
-                var booking = _context.Bookings.FirstOrDefault(x => x.BookingId == bookingUpdateDTO.BookingId);
+                var bookingMapped = _mapper.Map<Booking>(bookingUpdateDTO);
 
-                booking.Status = (BookingStatusEnum)bookingUpdateDTO.Status;
-                booking.UpdatedAt = DateTime.Now;
-                booking.UpdatedBy = Guid.Parse(userId);
-                booking.MemberId = bookingUpdateDTO.MemberId;
-                booking.TherapistId = bookingUpdateDTO.TherapistId;
-                booking.MemberResultId = bookingUpdateDTO.MemberResultId;
-                booking.ScheduleId = bookingUpdateDTO.ScheduleId;
+                bookingMapped.UpdatedAt = DateTime.Now;
+                bookingMapped.UpdatedBy = Guid.Parse(userId);
 
-                _context.Bookings.Update(booking);
+                _context.Bookings.Update(bookingMapped);
                 if (_context.SaveChanges() > 0)
                 {
-                    return Ok(booking);
+                    return Ok(bookingMapped);
                 }
                 else
                 {
@@ -221,34 +192,22 @@ namespace SWP391.Service
 
                 var message = "No returned!";
 
-                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId)
+                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId.ToString())
                 {
-                    var transaction = new Transaction
+                    var transaction = new TransactionDTO
                     {
                         Amount = +booking.Fee,
                         Description = "Cancel booking",
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        CreatedBy = Guid.Parse(booking.MemberId),
-                        UpdatedBy = Guid.Parse(booking.MemberId)
                     };
 
-                    var transactionQuery = _context.Transactions.AsQueryable();
-
-                    var checkId = true;
-                    while (checkId)
-                    {
-                        Guid transactionId = Guid.NewGuid();
-                        var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
-                        if (check == null)
-                        {
-                            transaction.TransactionId = transactionId;
-                            checkId = false;
-                        }
-                    }
+                    var transactionMapped = _mapper.Map<Transaction>(transaction);
+                    transactionMapped.CreatedBy = Guid.Parse(userId);
+                    transactionMapped.UpdatedAt = DateTime.Now;
+                    transactionMapped.UpdatedBy = Guid.Parse(userId);
+                    transactionMapped.CreatedAt = DateTime.Now;
 
                     message = "Returned!";
-                    _context.Transactions.Add(transaction);
+                    _context.Transactions.Add(transactionMapped);
 
                     var wallet = _context.Wallets.FirstOrDefault(e => e.UserId == booking.MemberId);
                     wallet.Balance += booking.Fee;
@@ -305,30 +264,19 @@ namespace SWP391.Service
 
                 var transactionQuery = _context.Transactions.AsQueryable();
 
-                var transaction = new Transaction
+                var transaction = new TransactionDTO
                 {
                     Amount = +booking.Fee,
                     Description = "Finish booking",
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(booking.TherapistId),
-                    UpdatedBy = Guid.Parse(booking.TherapistId)
                 };
 
-                var transactionQuery = _context.Transactions.AsQueryable();
+                var transactionMapped = _mapper.Map<Transaction>(transaction);
+                transactionMapped.CreatedBy = booking.TherapistId;
+                transactionMapped.UpdatedAt = DateTime.Now;
+                transactionMapped.UpdatedBy = booking.TherapistId;
+                transactionMapped.CreatedAt = DateTime.Now;
 
-                var checkId = true;
-                while (checkId)
-                {
-                    Guid transactionId = Guid.NewGuid();
-                    var check = transactionQuery.FirstOrDefault(x => x.TransactionId == transactionId);
-                    if (check == null)
-                    {
-                        transaction.TransactionId = transactionId;
-                        checkId = false;
-                    }
-                }
-                _context.Transactions.Add(transaction);
+                _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
                 wallet.Balance += booking.Fee;
@@ -336,7 +284,7 @@ namespace SWP391.Service
 
                 if (_context.SaveChanges() > 0)
                 {
-                    return Ok(bookingReturn);
+                    return Ok(booking);
                 }
                 else
                 {

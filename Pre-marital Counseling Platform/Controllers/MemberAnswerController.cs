@@ -19,8 +19,7 @@ namespace SWP391.Controllers
             _memberAnswerService = memberAnswerService;
         }
 
-        [HttpPost("Save")]
-        //public async Task<IActionResult> SaveMemberResult()
+        
 
         [HttpGet("Get_All_Member_Answer")]
         public async Task<IActionResult> GetAllAnswers()
@@ -39,7 +38,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateMemberAnswer([FromBody] CreateMemberAnswerDTO memberAnswerDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
             return await _memberAnswerService.CreateMemberAnswer(memberAnswerDTO, userId);
         }
 
@@ -48,8 +47,16 @@ namespace SWP391.Controllers
         public async Task<IActionResult> UpdateMemberAnswer([FromBody] UpdateMemberAnswerDTO memberAnswerDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
             return await _memberAnswerService.UpdateMemberAnswer(memberAnswerDTO, userId);
+        }
+
+        [HttpPost("Save_Member_Answer")]
+        public async Task<IActionResult> SaveMemberResult([FromBody] SaveMemberAnswerDTO dto)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            return await _memberAnswerService.SaveMemberAnswer(dto, userId);
         }
     }
 }

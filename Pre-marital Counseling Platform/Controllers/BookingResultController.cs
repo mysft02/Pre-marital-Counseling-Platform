@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.Booking;
+using SWP391.DTO;
 using SWP391.DTO.BookingResult;
 using SWP391.Service;
 using System.Security.Claims;
@@ -39,7 +39,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> CreateBookingResult([FromBody] BookingResultCreateDTO bookingResultCreateDTO)
         {
             var currentUser = HttpContext.User;
-            var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
             return await _bookingResultService.HandleCreateBookingResult(bookingResultCreateDTO, userId);
         }

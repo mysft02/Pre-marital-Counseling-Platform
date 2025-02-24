@@ -55,7 +55,9 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.TherapistId);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.ConsultationFee).HasDefaultValue(0);
+            entity.Property(u => u.Avatar).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Status).HasDefaultValue(true);
+            entity.Property(u => u.ConsultationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
@@ -65,14 +67,14 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<Wallet>(entity =>
         {
             entity.HasKey(u => u.WalletId);
-            entity.Property(u => u.Balance).HasDefaultValue(0);
+            entity.Property(u => u.Balance).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.HasOne(u => u.User).WithMany().HasForeignKey(u => u.UserId).OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Transaction>(entity =>
         {
             entity.HasKey(u => u.TransactionId);
-            entity.Property(u => u.Amount).HasDefaultValue(0);
+            entity.Property(u => u.Amount).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(u => u.Description).HasMaxLength(200);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
@@ -94,9 +96,8 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasKey(u => u.BookingId);
             entity.HasOne(u => u.User).WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
-            entity.HasOne(u => u.MemberResult).WithMany().HasForeignKey(u => u.MemberResultId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Schedule).WithMany(e => e.Bookings).HasForeignKey(u => u.ScheduleId).OnDelete(DeleteBehavior.NoAction);
-            entity.Property(u => u.Fee).HasDefaultValue(0);
+            entity.Property(u => u.Fee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (BookingStatusEnum)Enum.Parse(typeof(BookingStatusEnum), v));
@@ -109,15 +110,15 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<BookingResult>(entity =>
         {
             entity.HasKey(u => u.BookingResultId);
-            entity.HasOne(u => u.Booking).WithMany().HasForeignKey(u => u.BookingId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Booking).WithOne(x => x.BookingResult).HasForeignKey<BookingResult>(u => u.BookingId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(100);
         });
 
         modelBuilder.Entity<Feedback>(entity =>
         {
             entity.HasKey(u => u.FeedbackId);
-            entity.HasOne(u => u.Booking).WithMany().HasForeignKey(u => u.BookingId).OnDelete(DeleteBehavior.NoAction);
-            entity.Property(u => u.Rating).HasDefaultValue(0);
+            entity.HasOne(u => u.Booking).WithOne(x => x.Feedback).HasForeignKey<Feedback>(u => u.BookingId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(u => u.Rating).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(u => u.FeedbackTitle).IsRequired().HasMaxLength(100);
             entity.Property(u => u.FeedbackContent).IsRequired().HasMaxLength(100);
             entity.Property(u => u.IsSatisfied).HasDefaultValue(true);
@@ -129,9 +130,9 @@ public class PmcsDbContext : IdentityDbContext
 
         modelBuilder.Entity<TherapistSpecification>(entity =>
         {
-            entity.HasNoKey();
-            entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
-            entity.HasOne(u => u.Specification).WithMany().HasForeignKey(u => u.SpecificationId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasKey(u => new {u.TherapistId, u.SpecificationId});
+            entity.HasOne(u => u.Therapist).WithMany(c => c.Specialty).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.Specification).WithMany(c => c.Therapists).HasForeignKey(u => u.SpecificationId).OnDelete(DeleteBehavior.NoAction);
         });
 
         modelBuilder.Entity<Specification>(entity =>
@@ -175,7 +176,7 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.QuizResultId);
             entity.HasOne(u => u.Quiz).WithMany(e => e.QuizResults).HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
-            entity.Property(u => u.Score).HasDefaultValue(0);
+            entity.Property(u => u.Score).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(u => u.Level).HasDefaultValue(1);
             entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(200);
@@ -191,7 +192,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Quiz).WithMany().HasForeignKey(u => u.QuizId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.User).WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.QuizResult).WithMany().HasForeignKey(u => u.QuizResultId).OnDelete(DeleteBehavior.NoAction);
-            entity.Property(u => u.Score).HasDefaultValue(0);
+            entity.Property(u => u.Score).HasColumnType("decimal(18,2)").HasDefaultValue(0);
         });
 
         modelBuilder.Entity<Question>(entity =>
@@ -213,7 +214,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasKey(u => u.AnswerId);
             entity.HasOne(u => u.Question).WithMany(e => e.Answers).HasForeignKey(u => u.QuestionId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.AnswerContent).IsRequired().HasMaxLength(200);
-            entity.Property(u => u.Score).HasDefaultValue(0);
+            entity.Property(u => u.Score).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);

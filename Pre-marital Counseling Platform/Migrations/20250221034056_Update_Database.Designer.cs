@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SWP391.Infrastructure.DbContext;
 
@@ -11,9 +12,11 @@ using SWP391.Infrastructure.DbContext;
 namespace SWP391.Migrations
 {
     [DbContext(typeof(PmcsDbContext))]
-    partial class PmcsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250221034056_Update_Database")]
+    partial class Update_Database
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,6 +291,9 @@ namespace SWP391.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("MemberResultId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -311,6 +317,8 @@ namespace SWP391.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("MemberResultId");
 
                     b.HasIndex("ScheduleId");
 
@@ -763,15 +771,15 @@ namespace SWP391.Migrations
 
             modelBuilder.Entity("SWP391.Domain.TherapistSpecification", b =>
                 {
-                    b.Property<Guid>("TherapistId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("SpecificationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("TherapistId", "SpecificationId");
+                    b.Property<Guid>("TherapistId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasIndex("SpecificationId");
+
+                    b.HasIndex("TherapistId");
 
                     b.ToTable("TherapistSpecifications");
                 });
@@ -995,6 +1003,12 @@ namespace SWP391.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("SWP391.Domain.MemberResult", "MemberResult")
+                        .WithMany()
+                        .HasForeignKey("MemberResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SWP391.Domain.Schedule", "Schedule")
                         .WithMany("Bookings")
                         .HasForeignKey("ScheduleId")
@@ -1014,6 +1028,8 @@ namespace SWP391.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedUser");
+
+                    b.Navigation("MemberResult");
 
                     b.Navigation("Schedule");
 
@@ -1248,13 +1264,13 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.TherapistSpecification", b =>
                 {
                     b.HasOne("SWP391.Domain.Specification", "Specification")
-                        .WithMany("Therapists")
+                        .WithMany()
                         .HasForeignKey("SpecificationId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("SWP391.Domain.Therapist", "Therapist")
-                        .WithMany("Specialty")
+                        .WithMany()
                         .HasForeignKey("TherapistId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1325,16 +1341,9 @@ namespace SWP391.Migrations
                     b.Navigation("Bookings");
                 });
 
-            modelBuilder.Entity("SWP391.Domain.Specification", b =>
-                {
-                    b.Navigation("Therapists");
-                });
-
             modelBuilder.Entity("SWP391.Domain.Therapist", b =>
                 {
                     b.Navigation("Schedules");
-
-                    b.Navigation("Specialty");
                 });
 #pragma warning restore 612, 618
         }

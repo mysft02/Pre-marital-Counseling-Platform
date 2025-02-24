@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SWP391.Infrastructure.DbContext;
 
@@ -11,9 +12,11 @@ using SWP391.Infrastructure.DbContext;
 namespace SWP391.Migrations
 {
     [DbContext(typeof(PmcsDbContext))]
-    partial class PmcsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250221040910_Update_Specification")]
+    partial class Update_Specification
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -288,6 +291,9 @@ namespace SWP391.Migrations
                     b.Property<Guid>("MemberId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("MemberResultId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid>("ScheduleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -311,6 +317,8 @@ namespace SWP391.Migrations
                     b.HasIndex("CreatedBy");
 
                     b.HasIndex("MemberId");
+
+                    b.HasIndex("MemberResultId");
 
                     b.HasIndex("ScheduleId");
 
@@ -995,6 +1003,12 @@ namespace SWP391.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
+                    b.HasOne("SWP391.Domain.MemberResult", "MemberResult")
+                        .WithMany()
+                        .HasForeignKey("MemberResultId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("SWP391.Domain.Schedule", "Schedule")
                         .WithMany("Bookings")
                         .HasForeignKey("ScheduleId")
@@ -1014,6 +1028,8 @@ namespace SWP391.Migrations
                         .IsRequired();
 
                     b.Navigation("CreatedUser");
+
+                    b.Navigation("MemberResult");
 
                     b.Navigation("Schedule");
 

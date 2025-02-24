@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
-using SWP391.DTO.Booking;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.DTO.Feedback;
 using SWP391.Infrastructure.DataEnum;
@@ -19,17 +20,19 @@ namespace SWP391.Service
     public class FeedbackService : ControllerBase, IFeedbackService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public FeedbackService(PmcsDbContext context)
+        public FeedbackService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleCreateFeedback(FeedbackCreateDTO feedbackCreateDTO, string? userId)
         {
             try
             {
-                var feedback = new Feedback
+                var feedback = new FeedbackDTO
                 {
                     FeedbackTitle = feedbackCreateDTO.FeedbackTitle,
                     FeedbackContent = feedbackCreateDTO.FeedbackContent,
@@ -38,19 +41,9 @@ namespace SWP391.Service
                     Rating = feedbackCreateDTO.Rating,
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Feedbacks.FirstOrDefault(x => x.FeedbackId == id);
-                    if (checkId == null)
-                    {
-                        feedback.FeedbackId = id;
-                        check = false;
-                    }
-                }
+                var feedbackMapped = _mapper.Map<Feedback>(feedback);
 
-                _context.Feedbacks.Add(feedback);
+                _context.Feedbacks.Add(feedbackMapped);
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {

@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Schedule
+﻿namespace SWP391.DTO
 {
     public class ScheduleUpdateDTO
     {

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
+using SWP391.DTO;
 using SWP391.DTO.Category;
 using SWP391.DTO.Question;
 using SWP391.Infrastructure.DataEnum;
@@ -18,10 +20,12 @@ namespace SWP391.Service
     public class QuestionService : ControllerBase, IQuestionService
     {
         private readonly PmcsDbContext _context;
+        private IMapper _mapper;
 
-        public QuestionService(PmcsDbContext context)
+        public QuestionService(PmcsDbContext context,IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleGetAllQuestions()
@@ -67,34 +71,24 @@ namespace SWP391.Service
         {
             try
             {
-                var Question = new Question
+                var question = new QuestionDTO
                 {
                     QuestionContent = questionCreateDTO.QuestionContent,
                     QuizId = questionCreateDTO.QuizId,
-                    Status = QuestionStatusEnum.ACTIVE,
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(userId),
-                    UpdatedBy = Guid.Parse(userId)
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Questions.FirstOrDefault(x => x.QuestionId == id);
-                    if (checkId == null)
-                    {
-                        Question.QuestionId = id;
-                        check = false;
-                    }
-                }
+                var questionMapped = _mapper.Map<Question>(question);
+                questionMapped.Status = QuestionStatusEnum.ACTIVE;
+                questionMapped.CreatedAt = DateTime.Now;
+                questionMapped.CreatedBy = Guid.Parse(userId);
+                questionMapped.UpdatedAt = DateTime.Now;
+                questionMapped.UpdatedBy = Guid.Parse(userId);
 
-                _context.Questions.Add(Question);
+                _context.Questions.Add(questionMapped);
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {
-                    return Ok(Question);
+                    return Ok(questionMapped);
                 }
                 else
                 {
