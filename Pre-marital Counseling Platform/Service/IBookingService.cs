@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
-using SWP391.DTO.Category;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
