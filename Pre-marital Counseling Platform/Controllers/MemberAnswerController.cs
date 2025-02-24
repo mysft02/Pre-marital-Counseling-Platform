@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
-using SWP391.DTO.MemberAnswer;
+using SWP391.DTO;
+using SWP391.DTO;
 using SWP391.DTO.Question;
 using SWP391.Service;
 using System.Security.Claims;
@@ -52,7 +53,7 @@ namespace SWP391.Controllers
         }
 
         [HttpPost("Save_Member_Answer")]
-        public async Task<IActionResult> SaveMemberResult([FromBody] SaveMemberAnswerDTO dto)
+        public async Task<IActionResult> SaveMemberResult([FromBody] List<CreateMemberAnswerDTO> dto)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst(ClaimTypes.Sid)?.Value;

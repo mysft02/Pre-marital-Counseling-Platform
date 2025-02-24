@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
-using SWP391.DTO.MemberAnswer;
-using SWP391.DTO.MemberResult;
+using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 
 namespace SWP391.Service
@@ -13,16 +13,18 @@ namespace SWP391.Service
         Task<IActionResult> GetMemberResultById(Guid id);
         Task<IActionResult> CreateMemberResult(CreateMemberResultDTO dto, string? userId);
         Task<IActionResult> UpdateMemberResult(UpdateMemberResultDTO dto, string? userId);
-        Task<IActionResult> CalculateMemberResult(CalculateMemberResultDTO dto, string? userId);
+        Task<IActionResult> CalculateMemberResult(CreateMemberResultDTO dto, string? userId);
     }
 
     public class MemberResultService : ControllerBase, IMemberResultService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public MemberResultService(PmcsDbContext context)
+        public MemberResultService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> GetAllMemberResult()
@@ -141,7 +143,7 @@ namespace SWP391.Service
             }
         }
 
-        public async Task<IActionResult> CalculateMemberResult(CalculateMemberResultDTO dto, string? userId)
+        public async Task<IActionResult> CalculateMemberResult(CreateMemberResultDTO dto, string? userId)
         {
             if (dto == null)
             {
@@ -155,6 +157,7 @@ namespace SWP391.Service
                     Where(x => x.MemberId == dto.MemberId && x.Question.QuizId == dto.QuizId).ToList();
 
                 decimal totalScore = 0;
+
                 foreach (var memberAnswer in memberAnswers)
                 {
                     var answer = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == memberAnswer.AnswerId);
@@ -163,19 +166,14 @@ namespace SWP391.Service
                         totalScore += answer.Score;
                     }
                 }
-
-                var memberResult = new MemberResult()
-                {
-                    MemberResultId = dto.MemberResultId,
-                    QuizId = dto.QuizId,
-                    MemberId = dto.MemberId,
-                    QuizResultId = dto.QuizResultId,
-                    Score = totalScore,
-                };
-                await _context.MemberResults.AddAsync(memberResult);
+                
+                var memberResultMapper = _mapper.Map<MemberResult>(dto);
+                memberResultMapper.Score = totalScore;
+                _context.MemberResults.Add(memberResultMapper);
+                
                 if (_context.SaveChanges() > 0)
                 {
-                    return Ok(memberResult);
+                    return Ok(memberResultMapper);
                 }
                 else
                 {
@@ -184,7 +182,7 @@ namespace SWP391.Service
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.InnerException.Message);
+                return BadRequest(ex.Message);
             }
         }
     }
