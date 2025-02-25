@@ -58,6 +58,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.Property(u => u.Avatar).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Status).HasDefaultValue(true);
             entity.Property(u => u.ConsultationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(u => u.MeetUrl).HasMaxLength(250);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);

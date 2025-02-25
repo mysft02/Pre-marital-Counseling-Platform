@@ -7,5 +7,6 @@
         public bool Status { get; set; }
         public string Description { get; set; }
         public decimal ConsultationFee { get; set; }
+        public string MeetUrl { get; set; }
     }
 }

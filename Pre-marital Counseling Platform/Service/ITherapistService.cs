@@ -65,6 +65,7 @@ namespace SWP391.Service
                 therapist.ConsultationFee = therapistUpdateDTO.ConsultationFee;
                 therapist.Status = therapistUpdateDTO.Status;
                 therapist.Description = therapistUpdateDTO.Description;
+                therapist.MeetUrl = therapistUpdateDTO.MeetUrl;
 
                 _context.Therapists.Update(therapist);
                 if (_context.SaveChanges() > 0)
