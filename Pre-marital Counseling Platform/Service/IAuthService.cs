@@ -11,6 +11,7 @@ using SWP391.Infrastructure.DbContext;
 using SWP391.Migrations;
 using System.Data;
 using System.Security.Claims;
+using System.IO;
 
 namespace SWP391.Service
 {
@@ -18,6 +19,7 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleLogin(UserLoginDTO userLoginDTO);
         Task<IActionResult> HandleRegister(UserRegisterDTO userRegisterDTO);
+        Task<IActionResult> HandleUpdateProfile(UserUpdateDTO userUpdateDTO, string id);
     }
 
     public class AuthService : ControllerBase,IAuthService
@@ -39,6 +41,30 @@ namespace SWP391.Service
             _mapper = mapper;
         }
 
+        public async Task<IActionResult> HandleUpdateProfile(UserUpdateDTO userUpdateDTO, string id)
+        {
+            try
+            {
+                var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == Guid.Parse(id));
+
+                var userMapped = _mapper.Map<User>(userUpdateDTO);
+
+                var avt = userUpdateDTO.AvatarUrl.Split(',')[1];
+                userMapped.AvatarUrl = avt;
+
+                _context.Update(userMapped);
+                if(_context.SaveChanges() > 0)
+                {
+                    return Ok(user);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
         public async Task<IActionResult> HandleRegister(UserRegisterDTO userRegisterDTO)
         {
             try
@@ -47,27 +73,38 @@ namespace SWP391.Service
 
                 if(userDuplicate != null) { return BadRequest("Email already exists"); }
 
+                string imagePath = "Infrastructure/DefaultData/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
+
+                // Chuyển đổi ảnh thành chuỗi Base64
+                string base64String = _jwtService.ConvertImageToBase64(imagePath);
+
+
                 var userMapped = _mapper.Map<User>(userRegisterDTO);
                 userMapped.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
                 userMapped.IsActive = true;
+                userMapped.AvatarUrl = base64String;
 
                 _context.Add(userMapped);
 
                 if(userMapped.Role == UserRoleEnum.THERAPIST)
                 {
-                    var createdTherapist = new Therapist
+                    var createdTherapist = new TherapistCreateDTO
                     {
-                        TherapistId = userMapped.UserId,
-                        ConsultationFee = 0,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = DateTime.Now,
-                        Description = "No description",
                         Status = true,
-                        Avatar = "Pending",
-                        CreatedBy = userMapped.UserId,
-                        UpdatedBy = userMapped.UserId
+                        Avatar = imagePath,
                     };
-                    _context.Add(createdTherapist);
+
+                    var therapistMapped = _mapper.Map<Therapist>(createdTherapist);
+                    therapistMapped.Description = "No Description";
+                    therapistMapped.CreatedAt = DateTime.Now;
+                    therapistMapped.UpdatedAt = DateTime.Now;
+                    therapistMapped.CreatedBy = userMapped.UserId;
+                    therapistMapped.UpdatedBy = userMapped.UserId;
+                    therapistMapped.MeetUrl = "No Meet Url";
+                    therapistMapped.Avatar = base64String;
+                    therapistMapped.TherapistName = userMapped.FullName;
+
+                    _context.Add(therapistMapped);
                 }
 
                 var wallet = new WalletCreateDTO
@@ -104,7 +141,8 @@ namespace SWP391.Service
                     new Claim("Name", loginUser.FullName),
                     new Claim("Email", loginUser.Email),
                     new Claim("Phone", loginUser.Phone),
-                    new Claim("Role", loginUser.Role.ToString())
+                    new Claim("Role", loginUser.Role.ToString()),
+                    new Claim("Avatar", loginUser.AvatarUrl.ToString())
                 };
 
                 // Tạo access token

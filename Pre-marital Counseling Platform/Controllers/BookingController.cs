@@ -33,6 +33,13 @@ namespace SWP391.Controllers
             return await _bookingService.HandleGetBookingById(id);
         }
 
+        [HttpGet("Get_Booking_By_User_Id")]
+        public async Task<IActionResult> GetBookingByUserId([FromQuery] Guid id)
+        {
+
+            return await _bookingService.HandleGetBookingByUserId(id);
+        }
+
         [Authorize]
         [HttpPost("Create_Booking")]
         public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDTO bookingCreateDTO)

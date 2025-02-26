@@ -44,7 +44,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.Property(e => e.Role).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (UserRoleEnum)Enum.Parse(typeof(UserRoleEnum), v));
-            entity.Property(u => u.AvatarUrl).IsRequired(false).HasMaxLength(100);
+            entity.Property(u => u.AvatarUrl);
             entity.Property(u => u.IsActive).IsRequired();
             entity.Property(u => u.IsAdmin).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
@@ -55,7 +55,7 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.TherapistId);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Avatar).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Avatar);
             entity.Property(u => u.Status).HasDefaultValue(true);
             entity.Property(u => u.ConsultationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(u => u.MeetUrl).HasMaxLength(250);

@@ -131,5 +131,16 @@ namespace SWP391.Service
             public string Email { get; set; }
             public bool IsAdmin { get; set; }
         }
+
+        public string ConvertImageToBase64(string imagePath)
+        {
+            // Đọc tệp ảnh vào mảng byte
+            byte[] imageBytes = File.ReadAllBytes(imagePath); // Đảm bảo rằng File.ReadAllBytes được nhận diện
+                                                              // Chuyển đổi mảng byte thành chuỗi Base64
+            string base64String = Convert.ToBase64String(imageBytes);
+
+            // Trả về chuỗi Base64
+            return base64String;
+        }
     }
 }
