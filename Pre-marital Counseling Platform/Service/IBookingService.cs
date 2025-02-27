@@ -77,10 +77,6 @@ namespace SWP391.Service
             try
             {
                 var bookings = _context.Bookings
-                    .Include(e => e.Schedule)
-                    .Include(e => e.Therapist)
-                    .Include(e => e.Feedback)
-                    .Include(e => e.BookingResult)
                     .Where(x => x.MemberId == id)
                     .ToList();
 

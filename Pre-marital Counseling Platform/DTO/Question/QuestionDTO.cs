@@ -16,7 +16,7 @@ namespace SWP391.DTO
     {
         public QuestionProfile()
         {
-            CreateMap<Question, QuestionDTO>();
+            CreateMap<Question, QuestionDTO>().ReverseMap();
             CreateMap<QuestionCreateDTO, Question>().ReverseMap();
         }
     }
