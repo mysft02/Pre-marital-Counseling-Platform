@@ -16,9 +16,10 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleLogin(UserLoginDTO userLoginDTO);
         Task<IActionResult> HandleRegister(UserRegisterDTO userRegisterDTO);
+        Task<IActionResult> HandleLogout();
     }
 
-    public class AuthService : ControllerBase,IAuthService
+    public class AuthService : ControllerBase, IAuthService
     {
         private readonly PmcsDbContext _context;
         private readonly IConfiguration _config;
@@ -43,7 +44,7 @@ namespace SWP391.Service
 
                 var userDuplicate = _context.Users.FirstOrDefault(x => x.Email == userRegisterDTO.Email);
 
-                if(userDuplicate != null) { return BadRequest("Email already exists"); }
+                if (userDuplicate != null) { return BadRequest("Email already exists"); }
 
                 createdUser.FullName = userRegisterDTO.FullName;
                 createdUser.Phone = userRegisterDTO.Phone;
@@ -72,7 +73,7 @@ namespace SWP391.Service
 
                 _context.Add(createdUser);
 
-                if(createdUser.Role == UserRoleEnum.THERAPIST)
+                if (createdUser.Role == UserRoleEnum.THERAPIST)
                 {
                     var createdTherapist = new Therapist
                     {
@@ -93,7 +94,7 @@ namespace SWP391.Service
                 };
 
                 var checkWallet = true;
-                while(checkWallet)
+                while (checkWallet)
                 {
                     var id = Guid.NewGuid();
                     var checkId = _context.Wallets.FirstOrDefault(x => x.UserId == id);
@@ -151,7 +152,8 @@ namespace SWP391.Service
                     Expires = DateTimeOffset.UtcNow.AddDays(7)
                 });
 
-                var user = new UserLoginResponse{
+                var user = new UserLoginResponse
+                {
                     AccessToken = accessToken,
                     RefreshToken = refreshToken
                 };
@@ -160,6 +162,33 @@ namespace SWP391.Service
                 return Ok(user);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleLogout()
+        {
+            try
+            {
+                var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User not logged in");
+                }
+
+                _cache.Remove($"RefreshToken_{userId}");
+
+                _httpContextAccessor.HttpContext.Response.Cookies.Delete("refreshToken", new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    Path = "/"
+                });
+
+                return Ok("Logged out successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

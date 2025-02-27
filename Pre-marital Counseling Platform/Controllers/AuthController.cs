@@ -35,5 +35,12 @@ namespace SWP391.Controllers
         {
             return await _authService.HandleRegister(userRegisterDTO);
         }
+
+        [Authorize]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            return await _authService.HandleLogout();
+        }
     }
 }

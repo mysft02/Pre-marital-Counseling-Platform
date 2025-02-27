@@ -106,6 +106,7 @@ builder.Services.AddScoped<IMemberResultService, MemberResultService>();
 builder.Services.AddScoped<IAnswerService, AnswerSevice>();
 builder.Services.AddScoped<ITherapistService, TherapistService>();
 builder.Services.AddScoped<IScheduleService, ScheduleService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 var app = builder.Build();
 
