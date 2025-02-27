@@ -45,5 +45,12 @@ namespace SWP391.Controllers
 
             return await _authService.HandleUpdateProfile(userUpdateDTO, userId);
         }
+
+        [Authorize]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            return await _authService.HandleLogout();
+        }
     }
 }

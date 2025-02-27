@@ -27,7 +27,7 @@ namespace SWP391.DTO
     {
         public UserProfile()
         {
-            CreateMap<User, UserDTO>();
+            CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, UserRegisterDTO>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email))
                 .ReverseMap();

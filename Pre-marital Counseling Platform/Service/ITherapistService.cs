@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SWP391.DTO.Quiz;
 using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 

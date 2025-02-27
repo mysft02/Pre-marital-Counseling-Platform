@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Quiz
+﻿namespace SWP391.DTO
 {
     public class QuizCreateDTO
     {
