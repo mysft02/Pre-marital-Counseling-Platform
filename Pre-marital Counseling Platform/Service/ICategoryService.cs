@@ -87,7 +87,6 @@ namespace SWP391.Service
                 if (result > 0)
                 {
                     return Ok(categoryMapped);
-                    return Ok(categoryMapped);
                 }
                 else
                 {
