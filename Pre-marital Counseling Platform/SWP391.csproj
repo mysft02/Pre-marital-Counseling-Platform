@@ -21,4 +21,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\DefaultData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\image\avatar.jpg" />
+  </ItemGroup>
+
 </Project>

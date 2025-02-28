@@ -70,11 +70,11 @@ namespace SWP391.Service
         {
             try
             {
-                var userDuplicate = _context.Users.FirstOrDefault(x => x.Email == userRegisterDTO.Email);
+                var userDuplicate = await _context.Users.FirstOrDefaultAsync(x => x.Email == userRegisterDTO.Email);
 
                 if(userDuplicate != null) { return BadRequest("Email already exists"); }
 
-                string imagePath = "Infrastructure/DefaultData/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
+                string imagePath = "wwwroot/image/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
 
                 // Chuyển đổi ảnh thành chuỗi Base64
                 string base64String = _jwtService.ConvertImageToBase64(imagePath);
@@ -83,7 +83,12 @@ namespace SWP391.Service
                 var userMapped = _mapper.Map<User>(userRegisterDTO);
                 userMapped.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
                 userMapped.IsActive = true;
+                userMapped.IsAdmin = false;
                 userMapped.AvatarUrl = base64String;
+                userMapped.CreatedAt = DateTime.Now;
+                userMapped.UpdatedAt = DateTime.Now;
+                userMapped.CreatedBy = userMapped.UserId;
+                userMapped.UpdatedBy = userMapped.UserId;
 
                 _context.Add(userMapped);
 
@@ -92,7 +97,7 @@ namespace SWP391.Service
                     var createdTherapist = new TherapistCreateDTO
                     {
                         Status = true,
-                        Avatar = imagePath,
+                        Avatar = base64String,
                     };
 
                     var therapistMapped = _mapper.Map<Therapist>(createdTherapist);
@@ -102,7 +107,6 @@ namespace SWP391.Service
                     therapistMapped.CreatedBy = userMapped.UserId;
                     therapistMapped.UpdatedBy = userMapped.UserId;
                     therapistMapped.MeetUrl = "No Meet Url";
-                    therapistMapped.Avatar = base64String;
                     therapistMapped.TherapistName = userMapped.FullName;
 
                     _context.Add(therapistMapped);

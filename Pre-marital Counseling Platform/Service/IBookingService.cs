@@ -17,6 +17,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleGetAllBookings();
         Task<IActionResult> HandleGetBookingById(Guid id);
         Task<IActionResult> HandleGetBookingByUserId(Guid userId);
+        Task<IActionResult> HandleGetBookingByTherapistId(Guid userId);
         Task<IActionResult> HandleUpdateBooking(BookingUpdateDTO bookingUpdateDTO, string? userId);
     }
 
@@ -78,6 +79,19 @@ namespace SWP391.Service
             {
                 var bookings = _context.Bookings
                     .Where(x => x.MemberId == id)
+                    .ToList();
+
+                return Ok(bookings);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetBookingByTherapistId(Guid id)
+        {
+            try
+            {
+                var bookings = _context.Bookings
+                    .Where(x => x.TherapistId == id)
                     .ToList();
 
                 return Ok(bookings);

@@ -65,6 +65,7 @@ namespace SWP391.Service
                 therapist.Status = therapistUpdateDTO.Status;
                 therapist.Description = therapistUpdateDTO.Description;
                 therapist.MeetUrl = therapistUpdateDTO.MeetUrl;
+                therapist.TherapistName = therapistUpdateDTO.TherapistName;
 
                 _context.Therapists.Update(therapist);
                 if (_context.SaveChanges() > 0)

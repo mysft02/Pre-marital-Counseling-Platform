@@ -29,3 +29,10 @@ public class BookingReturnDTO
     public Booking Booking { get; set; }
     public string Message { get; set; }
 }
+
+public class BookingResponseDTO
+{
+    public Booking Booking { get; set; }
+    public string MemberName { get; set; }
+    public string TherapistName { get; set; }
+}
