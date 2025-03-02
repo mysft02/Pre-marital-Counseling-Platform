@@ -13,6 +13,7 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleCancelBooking(Guid id, string? userId);
         Task<IActionResult> HandleCloseBooking(Guid id, string? userId);
+        Task<IActionResult> HandleFinishBooking(Guid id, string? userId);
         Task<IActionResult> HandleCreateBooking(BookingCreateDTO bookingCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllBookings();
         Task<IActionResult> HandleGetBookingById(Guid id);
@@ -269,9 +270,9 @@ namespace SWP391.Service
                     .Include(e => e.BookingResult)
                     .FirstOrDefault(x => x.BookingId == id);
 
-                if (booking.Status != BookingStatusEnum.PENDING)
+                if (booking.Status != BookingStatusEnum.FINISHED)
                 {
-                    return BadRequest("Booking is not pending!");
+                    return BadRequest("Booking is not finished!");
                 }
 
                 if(booking.Feedback == null)
@@ -284,7 +285,7 @@ namespace SWP391.Service
                     return BadRequest("No result yet!");
                 }
 
-                booking.Status = BookingStatusEnum.FINISHED;
+                booking.Status = BookingStatusEnum.CLOSED;
                 booking.UpdatedAt = DateTime.Now;
                 booking.UpdatedBy = Guid.Parse(userId);
                 _context.Bookings.Update(booking);
@@ -294,7 +295,7 @@ namespace SWP391.Service
                 var transaction = new TransactionDTO
                 {
                     Amount = +booking.Fee,
-                    Description = "Finish booking",
+                    Description = "Finish counseling",
                 };
 
                 var transactionMapped = _mapper.Map<Transaction>(transaction);
@@ -315,7 +316,39 @@ namespace SWP391.Service
                 }
                 else
                 {
-                    return BadRequest("Finish Booking failed");
+                    return BadRequest("Close Booking failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleFinishBooking(Guid id, string? userId)
+        {
+            try
+            {
+                var booking = _context.Bookings
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Feedback)
+                    .Include(e => e.BookingResult)
+                    .FirstOrDefault(x => x.BookingId == id);
+
+                if (booking.Status != BookingStatusEnum.PENDING)
+                {
+                    return BadRequest("Booking is not pending!");
+                }
+
+                booking.Status = BookingStatusEnum.FINISHED;
+                booking.UpdatedAt = DateTime.Now;
+                booking.UpdatedBy = Guid.Parse(userId);
+                _context.Bookings.Update(booking);
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(booking);
+                }
+                else
+                {
+                    return BadRequest("Close Booking failed");
                 }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }

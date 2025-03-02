@@ -4,6 +4,7 @@
     {
         PENDING = 1,
         CANCELED,
-        FINISHED
+        FINISHED,
+        CLOSED
     }
 }

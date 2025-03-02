@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using BCrypt.Net;
+using System.IO.Compression;
 
 namespace SWP391.Service
 {
@@ -141,6 +142,22 @@ namespace SWP391.Service
 
             // Trả về chuỗi Base64
             return base64String;
+        }
+
+        public string CompressWithBrotli(string input)
+        {
+            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
+
+            using (var memoryStream = new MemoryStream())
+            {
+                using (var brotli = new BrotliStream(memoryStream, CompressionMode.Compress))
+                {
+                    brotli.Write(inputBytes, 0, inputBytes.Length);
+                }
+
+                byte[] compressedData = memoryStream.ToArray();
+                return Convert.ToBase64String(compressedData);
+            }
         }
     }
 }

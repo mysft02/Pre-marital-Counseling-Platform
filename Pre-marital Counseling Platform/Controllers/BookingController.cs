@@ -57,15 +57,15 @@ namespace SWP391.Controllers
             return await _bookingService.HandleCreateBooking(bookingCreateDTO, userId);
         }
 
-        //[Authorize]
-        //[HttpPost("Update_Booking")]
-        //public async Task<IActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
-        //{
-        //    var currentUser = HttpContext.User;
-        //    var userId = currentUser.FindFirst("UserId")?.Value;
+        [Authorize]
+        [HttpPost("Finish_Booking")]
+        public async Task<IActionResult> FinishBooking([FromQuery] Guid id)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
-        //    return await _bookingService.HandleUpdateBooking(bookingUpdateDTO, userId);
-        //}
+            return await _bookingService.HandleFinishBooking(id, userId);
+        }
 
         [Authorize]
         [HttpPost("Cancel_Booking")]

@@ -74,17 +74,17 @@ namespace SWP391.Service
 
                 if(userDuplicate != null) { return BadRequest("Email already exists"); }
 
-                string imagePath = "wwwroot/image/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
+                //string imagePath = "wwwroot/image/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
 
                 // Chuyển đổi ảnh thành chuỗi Base64
-                string base64String = _jwtService.ConvertImageToBase64(imagePath);
+                //string base64String = _jwtService.CompressWithBrotli(imagePath);
 
 
                 var userMapped = _mapper.Map<User>(userRegisterDTO);
                 userMapped.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
                 userMapped.IsActive = true;
                 userMapped.IsAdmin = false;
-                userMapped.AvatarUrl = base64String;
+                userMapped.AvatarUrl = "No Avatar";
                 userMapped.CreatedAt = DateTime.Now;
                 userMapped.UpdatedAt = DateTime.Now;
                 userMapped.CreatedBy = userMapped.UserId;
@@ -97,7 +97,7 @@ namespace SWP391.Service
                     var createdTherapist = new TherapistCreateDTO
                     {
                         Status = true,
-                        Avatar = base64String,
+                        Avatar = "No Avatar",
                     };
 
                     var therapistMapped = _mapper.Map<Therapist>(createdTherapist);

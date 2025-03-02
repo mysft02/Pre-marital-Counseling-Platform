@@ -30,6 +30,10 @@ namespace SWP391.Service
         {
             try
             {
+                var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
+
+                if(bookingCheck == null) { return BadRequest("Booking not finished"); }
+
                 var feedback = new FeedbackDTO
                 {
                     FeedbackTitle = feedbackCreateDTO.FeedbackTitle,
@@ -40,6 +44,10 @@ namespace SWP391.Service
                 };
 
                 var feedbackMapped = _mapper.Map<Feedback>(feedback);
+                feedbackMapped.CreatedBy = Guid.Parse(userId);
+                feedbackMapped.CreatedAt = DateTime.Now;
+                feedbackMapped.UpdatedBy = Guid.Parse(userId);
+                feedbackMapped.UpdatedAt = DateTime.Now;
 
                 _context.Feedbacks.Add(feedbackMapped);
                 var result = _context.SaveChanges();
