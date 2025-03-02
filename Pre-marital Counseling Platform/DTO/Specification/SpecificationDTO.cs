@@ -1,0 +1,51 @@
+﻿using AutoMapper;
+using SWP391.Domain;
+
+namespace SWP391.DTO
+{
+    public class SpecificationDTO
+    {
+        public Guid SpecificationId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Level { get; set; }
+    }
+
+    public class SpecificationCreateDTO
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Level { get; set; }
+    }
+
+    public class SpecificationUpdateDTO
+    {
+        public Guid SpecificationId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Level { get; set; }
+    }
+
+    public class TherapistSpecificationUpdateDTO
+    {
+        public Guid TherapistId { get; set; }
+        public Guid SpecificationId { get; set; }
+    }
+
+    public class SpecificationResponseDTO
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public int Level { get; set; }
+    }
+
+    public class SpecificationProfile : Profile
+    {
+        public SpecificationProfile()
+        {
+            CreateMap<Specification, SpecificationDTO>().ReverseMap();
+            CreateMap<SpecificationCreateDTO, Specification>().ReverseMap();
+            CreateMap<SpecificationUpdateDTO, Specification>().ReverseMap();
+        }
+    }
+}
