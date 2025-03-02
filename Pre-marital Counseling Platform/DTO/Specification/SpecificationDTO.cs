@@ -9,6 +9,7 @@ namespace SWP391.DTO
         public string Name { get; set; }
         public string Description { get; set; }
         public int Level { get; set; }
+        public List<Therapist> Therapists { get; set; } 
     }
 
     public class SpecificationCreateDTO

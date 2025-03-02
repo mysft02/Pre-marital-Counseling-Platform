@@ -33,7 +33,15 @@ namespace SWP391.Service
             try
             {
                 var specifications = _context.Specifications
-                    .Include(c => c.Therapists)
+                    .Include(c => c.Therapists).ThenInclude(c => c.Therapist)
+                    .Select(x => new SpecificationDTO
+                    {
+                        SpecificationId = x.SpecificationId,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Level = x.Level,
+                        Therapists = x.Therapists.Select(c => c.Therapist).ToList()
+                    })
                     .ToList();
 
                 return Ok(specifications);
@@ -47,8 +55,15 @@ namespace SWP391.Service
             {
                 var specification = _context.Specifications
                     .Include(c => c.Therapists)
-                    .Where(x => x.SpecificationId == id)
-                    .FirstOrDefault();
+                    .Select(x => new SpecificationDTO
+                    {
+                        SpecificationId = x.SpecificationId,
+                        Name = x.Name,
+                        Description = x.Description,
+                        Level = x.Level,
+                        Therapists = x.Therapists.Select(c => c.Therapist).ToList()
+                    })
+                    .FirstOrDefault(x => x.SpecificationId == id);
 
                 return Ok(specification);
             }
