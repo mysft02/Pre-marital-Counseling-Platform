@@ -77,20 +77,5 @@ namespace SWP391.Controllers
                 return BadRequest("Get token Failed");
             }
         }
-
-        [HttpGet("Get_Base64_Zip", Name = "Get_Base64_Zip")]
-        public IActionResult GetBase64Zip()
-        {
-            string imagePath = "wwwroot/image/avatar.jpg"; // Thay đổi đường dẫn đến tệp ảnh của bạn
-
-            // Chuyển đổi ảnh thành chuỗi Base64
-            string base64String = _jwtService.ConvertImageToBase64(imagePath);
-            
-            var result = _jwtService.CompressWithBrotli(imagePath);
-
-            return Ok(result);
-        }
-
-        
     }
 }

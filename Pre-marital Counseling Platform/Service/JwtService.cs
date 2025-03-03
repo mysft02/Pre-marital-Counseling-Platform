@@ -42,52 +42,8 @@ namespace SWP391.Service
             return tokenString;
         }
 
-        public string GenerateSecurityToken(Payload payloadDTO)
-        {
-            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? DEFAULT_SECRET);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                 {
-                 new ("userID", payloadDTO.UserId.ToString()),
-                 new ("email", payloadDTO.Email),
-                 new ("isAdmin", payloadDTO.IsAdmin.ToString()),
-                 }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = payloadDTO.UserId.ToString(),
-            };
 
-            var token = _handler.CreateToken(tokenDescriptor);
-
-            return _handler.WriteToken(token);
-
-        }
-
-        public Payload? ValidateToken(string token)
-        {
-
-            _handler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                ClockSkew = TimeSpan.FromHours(2)
-            }, out SecurityToken validatedToken);
-
-            var result = (JwtSecurityToken)validatedToken;
-
-            var payload = new Payload()
-            {
-                UserId = Guid.Parse(result.Issuer),
-                Email = result.Claims.First(x => x.Type == "email").Value,
-                IsAdmin = bool.Parse(result.Claims.First(x => x.Type == "isAdmin").Value)
-            };
-
-            return payload;
-        }
+        
 
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
@@ -124,40 +80,6 @@ namespace SWP391.Service
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
-        }
-
-        public class Payload
-        {
-            public Guid UserId { get; set; }
-            public string Email { get; set; }
-            public bool IsAdmin { get; set; }
-        }
-
-        public string ConvertImageToBase64(string imagePath)
-        {
-            // Đọc tệp ảnh vào mảng byte
-            byte[] imageBytes = File.ReadAllBytes(imagePath); // Đảm bảo rằng File.ReadAllBytes được nhận diện
-                                                              // Chuyển đổi mảng byte thành chuỗi Base64
-            string base64String = Convert.ToBase64String(imageBytes);
-
-            // Trả về chuỗi Base64
-            return base64String;
-        }
-
-        public string CompressWithBrotli(string input)
-        {
-            byte[] inputBytes = Encoding.UTF8.GetBytes(input);
-
-            using (var memoryStream = new MemoryStream())
-            {
-                using (var brotli = new BrotliStream(memoryStream, CompressionMode.Compress))
-                {
-                    brotli.Write(inputBytes, 0, inputBytes.Length);
-                }
-
-                byte[] compressedData = memoryStream.ToArray();
-                return Convert.ToBase64String(compressedData);
-            }
         }
     }
 }
