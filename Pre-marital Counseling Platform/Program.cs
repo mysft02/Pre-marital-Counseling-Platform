@@ -6,6 +6,8 @@ using SWP391.Service;
 using SWP391.Infrastructure.DbContext;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,7 +54,7 @@ builder.Services.AddDbContext<PmcsDbContext>(options =>
 builder.Services.AddScoped<CustomJwtBearerHandler>();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(c =>
@@ -69,7 +71,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme = "Bearer"
     });
 
-    // Require the bearer token for all API operations
     c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
       {
@@ -111,6 +112,11 @@ builder.Services.AddScoped<ISpecificationService, SpecificationService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
+
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("student-51e6a-firebase-adminsdk-ix2ag-141bab3738.json")
+});
 
 var app = builder.Build();
 
