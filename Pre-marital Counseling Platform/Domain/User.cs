@@ -17,4 +17,5 @@ public class User
     public DateTime UpdatedAt { get; set; }
     public Guid CreatedBy { get; set; }
     public Guid UpdatedBy { get; set; }
+    public List<Booking> Bookings { get; set; }
 }

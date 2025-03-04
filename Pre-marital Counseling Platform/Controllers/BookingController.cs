@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
-using SWP391.DTO.Category;
 using SWP391.Service;
 using System.Security.Claims;
 
@@ -34,6 +33,20 @@ namespace SWP391.Controllers
             return await _bookingService.HandleGetBookingById(id);
         }
 
+        [HttpGet("Get_Booking_By_User_Id")]
+        public async Task<IActionResult> GetBookingByUserId([FromQuery] Guid id)
+        {
+
+            return await _bookingService.HandleGetBookingByUserId(id);
+        }
+
+        [HttpGet("Get_Booking_By_Therapist_Id")]
+        public async Task<IActionResult> GetBookingByTherapistId([FromQuery] Guid id)
+        {
+
+            return await _bookingService.HandleGetBookingByTherapistId(id);
+        }
+
         [Authorize]
         [HttpPost("Create_Booking")]
         public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDTO bookingCreateDTO)
@@ -44,15 +57,15 @@ namespace SWP391.Controllers
             return await _bookingService.HandleCreateBooking(bookingCreateDTO, userId);
         }
 
-        //[Authorize]
-        //[HttpPost("Update_Booking")]
-        //public async Task<IActionResult> UpdateBooking([FromBody] BookingUpdateDTO bookingUpdateDTO)
-        //{
-        //    var currentUser = HttpContext.User;
-        //    var userId = currentUser.FindFirst("UserId")?.Value;
+        [Authorize]
+        [HttpPost("Finish_Booking")]
+        public async Task<IActionResult> FinishBooking([FromQuery] Guid id)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
 
-        //    return await _bookingService.HandleUpdateBooking(bookingUpdateDTO, userId);
-        //}
+            return await _bookingService.HandleFinishBooking(id, userId);
+        }
 
         [Authorize]
         [HttpPost("Cancel_Booking")]

@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using SWP391.DTO.Quiz;
 using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
 
@@ -28,7 +27,30 @@ namespace SWP391.Service
             {
                 var therapists = _context.Therapists
                     .Include(c => c.Schedules)
-                    .Include(c => c.Specialty)
+                    .Include(c => c.Specialty).ThenInclude(m => m.Specification)
+                    .Select(x => new TherapistDTO
+                    {
+                        TherapistId = x.TherapistId,
+                        TherapistName = x.TherapistName,
+                        Avatar = x.Avatar,
+                        Status = x.Status,
+                        ConsultationFee = x.ConsultationFee,
+                        Description = x.Description,
+                        MeetUrl = x.MeetUrl,
+                        Schedules = x.Schedules.Select(s => new ScheduleResponseDTO
+                        {
+                            ScheduleId = s.ScheduleId,
+                            Date = s.Date,
+                            Slot = s.Slot,
+                            IsAvailable = s.IsAvailable,
+                        }).ToList(),
+                        Specifications = x.Specialty.Select(n => new SpecificationResponseDTO
+                        {
+                            Name = n.Specification.Name,
+                            Description = n.Specification.Description,
+                            Level = n.Specification.Level
+                        }).ToList()
+                    })
                     .ToList();
 
                 return Ok(therapists);
@@ -40,9 +62,32 @@ namespace SWP391.Service
         {
             try
             {
-                var therapist = _context.Therapists 
+                var therapist = _context.Therapists
                     .Include(c => c.Schedules)
-                    .Include(c => c.Specialty)
+                    .Include(c => c.Specialty).ThenInclude(m => m.Specification)
+                    .Select(x => new TherapistDTO
+                    {
+                        TherapistId = x.TherapistId,
+                        TherapistName = x.TherapistName,
+                        Avatar = x.Avatar,
+                        Status = x.Status,
+                        ConsultationFee = x.ConsultationFee,
+                        Description = x.Description,
+                        MeetUrl = x.MeetUrl,
+                        Schedules = x.Schedules.Select(s => new ScheduleResponseDTO
+                        {
+                            ScheduleId = s.ScheduleId,
+                            Date = s.Date,
+                            Slot = s.Slot,
+                            IsAvailable = s.IsAvailable,
+                        }).ToList(),
+                        Specifications = x.Specialty.Select(n => new SpecificationResponseDTO
+                        {
+                            Name = n.Specification.Name,
+                            Description = n.Specification.Description,
+                            Level = n.Specification.Level
+                        }).ToList()
+                    })
                     .FirstOrDefault(x => x.TherapistId == id);
 
                 return Ok(therapist);
@@ -65,6 +110,8 @@ namespace SWP391.Service
                 therapist.ConsultationFee = therapistUpdateDTO.ConsultationFee;
                 therapist.Status = therapistUpdateDTO.Status;
                 therapist.Description = therapistUpdateDTO.Description;
+                therapist.MeetUrl = therapistUpdateDTO.MeetUrl;
+                therapist.TherapistName = therapistUpdateDTO.TherapistName;
 
                 _context.Therapists.Update(therapist);
                 if (_context.SaveChanges() > 0)

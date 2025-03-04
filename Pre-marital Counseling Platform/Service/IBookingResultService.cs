@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
 using SWP391.DTO;
-using SWP391.DTO.BookingResult;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
@@ -18,10 +18,12 @@ namespace SWP391.Service
     public class BookingResultService : ControllerBase, IBookingResultService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public BookingResultService(PmcsDbContext context)
+        public BookingResultService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleGetAllBookingResults()
@@ -65,25 +67,22 @@ namespace SWP391.Service
         {
             try
             {
-                var bookingResult = new BookingResult
+                var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == bookingResultCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
+
+                if(bookingCheck == null)
+                {
+                    return BadRequest("Booking not finished");
+                }
+                
+                var bookingResult = new BookingResultCreateDTO
                 {
                     BookingId = bookingResultCreateDTO.BookingId,
                     Description = bookingResultCreateDTO.Description,
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.BookingResults.FirstOrDefault(x => x.BookingResultId == id);
-                    if (checkId == null)
-                    {
-                        bookingResult.BookingResultId = id;
-                        check = false;
-                    }
-                }
+                var bookingResultMapped = _mapper.Map<BookingResult>(bookingResultCreateDTO);
 
-                _context.BookingResults.Add(bookingResult);
+                _context.BookingResults.Add(bookingResultMapped);
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {

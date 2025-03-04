@@ -44,7 +44,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.Property(e => e.Role).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (UserRoleEnum)Enum.Parse(typeof(UserRoleEnum), v));
-            entity.Property(u => u.AvatarUrl).IsRequired(false).HasMaxLength(100);
+            entity.Property(u => u.AvatarUrl);
             entity.Property(u => u.IsActive).IsRequired();
             entity.Property(u => u.IsAdmin).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
@@ -55,9 +55,10 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.TherapistId);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Avatar).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Avatar);
             entity.Property(u => u.Status).HasDefaultValue(true);
             entity.Property(u => u.ConsultationFee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(u => u.MeetUrl).HasMaxLength(250);
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
@@ -94,7 +95,7 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(u => u.BookingId);
-            entity.HasOne(u => u.User).WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.User).WithMany(e => e.Bookings).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Schedule).WithMany(e => e.Bookings).HasForeignKey(u => u.ScheduleId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Fee).HasColumnType("decimal(18,2)").HasDefaultValue(0);

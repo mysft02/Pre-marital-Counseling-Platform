@@ -35,5 +35,22 @@ namespace SWP391.Controllers
         {
             return await _authService.HandleRegister(userRegisterDTO);
         }
+
+        [Authorize]
+        [HttpPost("Update_Profile")]
+        public async Task<IActionResult> UpdateProfile([FromBody] UserUpdateDTO userUpdateDTO)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+
+            return await _authService.HandleUpdateProfile(userUpdateDTO, userId);
+        }
+
+        [Authorize]
+        [HttpPost("Logout")]
+        public async Task<IActionResult> Logout()
+        {
+            return await _authService.HandleLogout();
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace SWP391.DTO
     {
         public CategoryProfile()
         {
-            CreateMap<Category, CategoryDTO>();
+            CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<CategoryCreateDTO, Category>().ReverseMap();
         }
     }

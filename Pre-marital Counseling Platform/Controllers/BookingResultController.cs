@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
-using SWP391.DTO.BookingResult;
 using SWP391.Service;
 using System.Security.Claims;
 

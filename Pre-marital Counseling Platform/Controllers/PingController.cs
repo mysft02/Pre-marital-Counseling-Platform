@@ -5,7 +5,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SWP391.Infrastructure.DbContext;
 using SWP391.Service;
+using System.IO.Compression;
 using System.Security.Claims;
+using System.Text;
 
 namespace SWP391.Controllers
 {

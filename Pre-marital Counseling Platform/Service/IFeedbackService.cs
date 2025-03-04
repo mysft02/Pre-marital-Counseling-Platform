@@ -2,8 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
 using SWP391.DTO;
-using SWP391.DTO.Category;
-using SWP391.DTO.Feedback;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
@@ -32,6 +30,10 @@ namespace SWP391.Service
         {
             try
             {
+                var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
+
+                if(bookingCheck == null) { return BadRequest("Booking not finished"); }
+
                 var feedback = new FeedbackDTO
                 {
                     FeedbackTitle = feedbackCreateDTO.FeedbackTitle,
@@ -42,6 +44,10 @@ namespace SWP391.Service
                 };
 
                 var feedbackMapped = _mapper.Map<Feedback>(feedback);
+                feedbackMapped.CreatedBy = Guid.Parse(userId);
+                feedbackMapped.CreatedAt = DateTime.Now;
+                feedbackMapped.UpdatedBy = Guid.Parse(userId);
+                feedbackMapped.UpdatedAt = DateTime.Now;
 
                 _context.Feedbacks.Add(feedbackMapped);
                 var result = _context.SaveChanges();

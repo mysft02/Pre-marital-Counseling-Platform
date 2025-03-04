@@ -718,8 +718,7 @@ namespace SWP391.Migrations
 
                     b.Property<string>("Avatar")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("ConsultationFee")
                         .ValueGeneratedOnAdd()
@@ -739,10 +738,19 @@ namespace SWP391.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("MeetUrl")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
                     b.Property<bool>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
+
+                    b.Property<string>("TherapistName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
@@ -824,8 +832,8 @@ namespace SWP391.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AvatarUrl")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -990,7 +998,7 @@ namespace SWP391.Migrations
                         .IsRequired();
 
                     b.HasOne("SWP391.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1335,6 +1343,11 @@ namespace SWP391.Migrations
                     b.Navigation("Schedules");
 
                     b.Navigation("Specialty");
+                });
+
+            modelBuilder.Entity("SWP391.Domain.User", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

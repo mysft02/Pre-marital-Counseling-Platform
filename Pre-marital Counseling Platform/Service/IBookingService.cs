@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
-using SWP391.DTO.Category;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
@@ -14,9 +13,12 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleCancelBooking(Guid id, string? userId);
         Task<IActionResult> HandleCloseBooking(Guid id, string? userId);
+        Task<IActionResult> HandleFinishBooking(Guid id, string? userId);
         Task<IActionResult> HandleCreateBooking(BookingCreateDTO bookingCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllBookings();
         Task<IActionResult> HandleGetBookingById(Guid id);
+        Task<IActionResult> HandleGetBookingByUserId(Guid userId);
+        Task<IActionResult> HandleGetBookingByTherapistId(Guid userId);
         Task<IActionResult> HandleUpdateBooking(BookingUpdateDTO bookingUpdateDTO, string? userId);
     }
 
@@ -37,13 +39,19 @@ namespace SWP391.Service
             {
                 List<BookingDTO> bookings = new List<BookingDTO>();
                 bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
                     .Select(x => new BookingDTO
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
-                        Status = x.Status
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
                     })
                     .ToList();
 
@@ -57,17 +65,77 @@ namespace SWP391.Service
             try
             {
                 var booking = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
                     .Select(x => new BookingDTO
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
-                        Status = x.Status
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
                     })
                     .Where(x => x.BookingId == id);
 
                 return Ok(booking);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetBookingByUserId(Guid id)
+        {
+            try
+            {
+                var bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
+                    .Select(x => new BookingDTO
+                    {
+                        BookingId = x.BookingId,
+                        MemberId = x.MemberId,
+                        TherapistId = x.TherapistId,
+                        ScheduleId = x.ScheduleId,
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
+                    })
+                    .Where(x => x.MemberId == id)
+                    .ToList();
+
+                return Ok(bookings);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetBookingByTherapistId(Guid id)
+        {
+            try
+            {
+                var bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
+                    .Select(x => new BookingDTO
+                    {
+                        BookingId = x.BookingId,
+                        MemberId = x.MemberId,
+                        TherapistId = x.TherapistId,
+                        ScheduleId = x.ScheduleId,
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
+                    })
+                    .Where(x => x.TherapistId == id)
+                    .ToList();
+
+                return Ok(bookings);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
@@ -112,6 +180,9 @@ namespace SWP391.Service
                 bookingMapped.Fee = therapist.ConsultationFee;
 
                 _context.Bookings.Add(bookingMapped);
+
+                slot.IsAvailable = false;
+                _context.Schedules.Update(slot);
 
                 var transaction = new TransactionCreateDTO
                 {
@@ -214,6 +285,10 @@ namespace SWP391.Service
                     _context.Wallets.Update(wallet);
                 }
 
+                var slot = booking.Schedule;
+                slot.IsAvailable = true;
+                _context.Schedules.Update(slot);
+
                 BookingReturnDTO bookingReturn = new BookingReturnDTO
                 {
                     Message = message,
@@ -242,9 +317,9 @@ namespace SWP391.Service
                     .Include(e => e.BookingResult)
                     .FirstOrDefault(x => x.BookingId == id);
 
-                if (booking.Status != BookingStatusEnum.PENDING)
+                if (booking.Status != BookingStatusEnum.FINISHED)
                 {
-                    return BadRequest("Booking is not pending!");
+                    return BadRequest("Booking is not finished!");
                 }
 
                 if(booking.Feedback == null)
@@ -257,7 +332,7 @@ namespace SWP391.Service
                     return BadRequest("No result yet!");
                 }
 
-                booking.Status = BookingStatusEnum.FINISHED;
+                booking.Status = BookingStatusEnum.CLOSED;
                 booking.UpdatedAt = DateTime.Now;
                 booking.UpdatedBy = Guid.Parse(userId);
                 _context.Bookings.Update(booking);
@@ -267,7 +342,7 @@ namespace SWP391.Service
                 var transaction = new TransactionDTO
                 {
                     Amount = +booking.Fee,
-                    Description = "Finish booking",
+                    Description = "Finish counseling",
                 };
 
                 var transactionMapped = _mapper.Map<Transaction>(transaction);
@@ -288,7 +363,39 @@ namespace SWP391.Service
                 }
                 else
                 {
-                    return BadRequest("Finish Booking failed");
+                    return BadRequest("Close Booking failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleFinishBooking(Guid id, string? userId)
+        {
+            try
+            {
+                var booking = _context.Bookings
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Feedback)
+                    .Include(e => e.BookingResult)
+                    .FirstOrDefault(x => x.BookingId == id);
+
+                if (booking.Status != BookingStatusEnum.PENDING)
+                {
+                    return BadRequest("Booking is not pending!");
+                }
+
+                booking.Status = BookingStatusEnum.FINISHED;
+                booking.UpdatedAt = DateTime.Now;
+                booking.UpdatedBy = Guid.Parse(userId);
+                _context.Bookings.Update(booking);
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(booking);
+                }
+                else
+                {
+                    return BadRequest("Close Booking failed");
                 }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }

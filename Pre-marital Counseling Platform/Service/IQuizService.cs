@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using SWP391.Domain;
-using SWP391.DTO.Quiz;
+using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 using System.Collections;
@@ -20,10 +21,12 @@ namespace SWP391.Service
     public class QuizService : ControllerBase, IQuizService
     {
         private readonly PmcsDbContext _context;
+        private readonly IMapper _mapper;
 
-        public QuizService(PmcsDbContext context)
+        public QuizService(PmcsDbContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public async Task<IActionResult> HandleGetAllQuizzes()
@@ -61,31 +64,21 @@ namespace SWP391.Service
         {
             try
             {
-                var quiz = new Quiz
+                var quiz = new QuizCreateDTO
                 {
                     CategoryId = quizCreateDTO.CategoryId,
                     Name = quizCreateDTO.Name,
                     Description = quizCreateDTO.Description,
-                    QuizStatus = QuizStatusEnum.ACTIVE, 
-                    CreatedAt = DateTime.Now,
-                    UpdatedAt = DateTime.Now,
-                    CreatedBy = Guid.Parse(userId),
-                    UpdatedBy = Guid.Parse(userId)
                 };
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Quizes.FirstOrDefault(x => x.QuizId == id);
-                    if (checkId == null)
-                    {
-                        quiz.QuizId = id;
-                        check = false;
-                    }
-                }
+                var quizMapped = _mapper.Map<Quiz>(quiz);
+                quizMapped.CreatedAt = DateTime.Now;
+                quizMapped.CreatedBy = Guid.Parse(userId);
+                quizMapped.UpdatedAt = DateTime.Now;
+                quizMapped.UpdatedBy = Guid.Parse(userId);
+                quizMapped.QuizStatus = QuizStatusEnum.ACTIVE;
 
-                _context.Quizes.Add(quiz);
+                _context.Quizes.Add(quizMapped);
                 var result = _context.SaveChanges();
                 if(result > 0)
                 {

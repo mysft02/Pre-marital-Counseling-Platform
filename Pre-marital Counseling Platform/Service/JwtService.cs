@@ -5,6 +5,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using BCrypt.Net;
+using System.IO.Compression;
 
 namespace SWP391.Service
 {
@@ -41,52 +42,8 @@ namespace SWP391.Service
             return tokenString;
         }
 
-        public string GenerateSecurityToken(Payload payloadDTO)
-        {
-            var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET") ?? DEFAULT_SECRET);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                 {
-                 new ("userID", payloadDTO.UserId.ToString()),
-                 new ("email", payloadDTO.Email),
-                 new ("isAdmin", payloadDTO.IsAdmin.ToString()),
-                 }),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
-                Issuer = payloadDTO.UserId.ToString(),
-            };
 
-            var token = _handler.CreateToken(tokenDescriptor);
-
-            return _handler.WriteToken(token);
-
-        }
-
-        public Payload? ValidateToken(string token)
-        {
-
-            _handler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(_key),
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-                ClockSkew = TimeSpan.FromHours(2)
-            }, out SecurityToken validatedToken);
-
-            var result = (JwtSecurityToken)validatedToken;
-
-            var payload = new Payload()
-            {
-                UserId = Guid.Parse(result.Issuer),
-                Email = result.Claims.First(x => x.Type == "email").Value,
-                IsAdmin = bool.Parse(result.Claims.First(x => x.Type == "isAdmin").Value)
-            };
-
-            return payload;
-        }
+        
 
 
         public ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
@@ -123,13 +80,6 @@ namespace SWP391.Service
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
             return Convert.ToBase64String(randomNumber);
-        }
-
-        public class Payload
-        {
-            public Guid UserId { get; set; }
-            public string Email { get; set; }
-            public bool IsAdmin { get; set; }
         }
     }
 }

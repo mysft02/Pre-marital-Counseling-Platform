@@ -2,6 +2,7 @@
 {
     public class TherapistCreateDTO
     {
-        public decimal ConsultationFee { get; set; }
+        public string Avatar { get; set; }
+        public bool Status { get; set; }
     }
 }
