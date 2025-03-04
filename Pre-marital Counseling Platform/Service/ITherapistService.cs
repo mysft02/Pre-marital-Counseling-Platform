@@ -39,6 +39,7 @@ namespace SWP391.Service
                         MeetUrl = x.MeetUrl,
                         Schedules = x.Schedules.Select(s => new ScheduleResponseDTO
                         {
+                            ScheduleId = s.ScheduleId,
                             Date = s.Date,
                             Slot = s.Slot,
                             IsAvailable = s.IsAvailable,
@@ -75,6 +76,7 @@ namespace SWP391.Service
                         MeetUrl = x.MeetUrl,
                         Schedules = x.Schedules.Select(s => new ScheduleResponseDTO
                         {
+                            ScheduleId = s.ScheduleId,
                             Date = s.Date,
                             Slot = s.Slot,
                             IsAvailable = s.IsAvailable,

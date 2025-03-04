@@ -998,7 +998,7 @@ namespace SWP391.Migrations
                         .IsRequired();
 
                     b.HasOne("SWP391.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Bookings")
                         .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1343,6 +1343,11 @@ namespace SWP391.Migrations
                     b.Navigation("Schedules");
 
                     b.Navigation("Specialty");
+                });
+
+            modelBuilder.Entity("SWP391.Domain.User", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

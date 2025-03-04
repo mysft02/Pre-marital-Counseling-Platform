@@ -95,7 +95,7 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(u => u.BookingId);
-            entity.HasOne(u => u.User).WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(u => u.User).WithMany(e => e.Bookings).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Schedule).WithMany(e => e.Bookings).HasForeignKey(u => u.ScheduleId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Fee).HasColumnType("decimal(18,2)").HasDefaultValue(0);

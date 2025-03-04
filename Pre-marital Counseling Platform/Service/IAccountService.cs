@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DbContext;
@@ -8,6 +9,7 @@ namespace SWP391.Service
     public interface IAccountService
     {
         Task<IActionResult> ChangePassword(ChangePasswordDTO changePassword, string? userId);
+        Task<IActionResult> GetAllUsers();
     }
 
     public class AccountService : ControllerBase, IAccountService
@@ -49,6 +51,29 @@ namespace SWP391.Service
             }
             catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var users = _context.Users
+                    .Include(x => x.Bookings)
+                    .Select(e => new UserResponseDTO
+                    {
+                        UserId = e.UserId,
+                        Email = e.Email,
+                        FullName = e.FullName,
+                        IsActive = e.IsActive,
+                        Bookings = e.Bookings,
+                    })
+                    .ToList();
+
+                return Ok(users);
+            }
+            catch(Exception ex) {
                 return BadRequest(ex.Message);
             }
         }

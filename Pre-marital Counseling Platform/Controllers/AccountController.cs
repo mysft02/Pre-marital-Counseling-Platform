@@ -26,5 +26,13 @@ namespace SWP391.Controllers
 
             return await _accountController.ChangePassword(changePassword, userId);
         }
+
+        [AllowAnonymous]
+        [HttpGet("Get_All_Users")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+
+            return await _accountController.GetAllUsers();
+        }
     }
 }

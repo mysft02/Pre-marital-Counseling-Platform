@@ -48,12 +48,12 @@ namespace SWP391.Service
             {
                 var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == Guid.Parse(id));
 
-                var userMapped = _mapper.Map<User>(userUpdateDTO);
+                user.FullName = userUpdateDTO.FullName;
+                user.Phone = userUpdateDTO.Phone;
+                user.IsActive = userUpdateDTO.IsActive;
+                user.AvatarUrl = userUpdateDTO.AvatarUrl;
 
-                var avt = userUpdateDTO.AvatarUrl.Split(',')[1];
-                userMapped.AvatarUrl = avt;
-
-                _context.Update(userMapped);
+                _context.Users.Update(user);
                 if(_context.SaveChanges() > 0)
                 {
                     return Ok(user);
@@ -78,7 +78,7 @@ namespace SWP391.Service
                 userMapped.Password = BCrypt.Net.BCrypt.HashPassword(userRegisterDTO.Password);
                 userMapped.IsActive = true;
                 userMapped.IsAdmin = false;
-                userMapped.AvatarUrl = "638765994361515545_avatar.jpg";
+                userMapped.AvatarUrl = "https://firebasestorage.googleapis.com/v0/b/student-51e6a.appspot.com/o/images%2F638765994361515545_avatar.jpg?alt=media&token=9b3b9add-76dc-4729-84fa-e49b265def12";
                 userMapped.CreatedAt = DateTime.Now;
                 userMapped.UpdatedAt = DateTime.Now;
                 userMapped.CreatedBy = userMapped.UserId;
@@ -88,20 +88,18 @@ namespace SWP391.Service
 
                 if(userMapped.Role == UserRoleEnum.THERAPIST)
                 {
-                    var createdTherapist = new TherapistCreateDTO
-                    {
-                        Status = true,
-                        Avatar = "638765994361515545_avatar.jpg",
-                    };
-
-                    var therapistMapped = _mapper.Map<Therapist>(createdTherapist);
+                    var therapistMapped = new Therapist();
+                    therapistMapped.TherapistId = userMapped.UserId;
+                    therapistMapped.TherapistName = userMapped.FullName;
+                    therapistMapped.Avatar = "https://firebasestorage.googleapis.com/v0/b/student-51e6a.appspot.com/o/images%2F638765994361515545_avatar.jpg?alt=media&token=9b3b9add-76dc-4729-84fa-e49b265def12";
+                    therapistMapped.Status = true;
                     therapistMapped.Description = "No Description";
+                    therapistMapped.ConsultationFee = 0;
+                    therapistMapped.MeetUrl = "No Meet Url";
                     therapistMapped.CreatedAt = DateTime.Now;
                     therapistMapped.UpdatedAt = DateTime.Now;
                     therapistMapped.CreatedBy = userMapped.UserId;
                     therapistMapped.UpdatedBy = userMapped.UserId;
-                    therapistMapped.MeetUrl = "No Meet Url";
-                    therapistMapped.TherapistName = userMapped.FullName;
 
                     _context.Add(therapistMapped);
                 }

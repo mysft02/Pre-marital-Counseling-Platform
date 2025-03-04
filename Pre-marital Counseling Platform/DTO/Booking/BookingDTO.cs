@@ -10,6 +10,9 @@ namespace SWP391.DTO
         public Guid MemberId { get; set; }
         public Guid TherapistId { get; set; }
         public Guid ScheduleId { get; set; }
+        public Feedback Feedback { get; set; }
+        public Schedule Schedule { get; set; }
+        public Therapist Therapist { get; set; }
         public BookingStatusEnum Status { get; set; }
     }
 

@@ -9,4 +9,10 @@ namespace SWP391.DTO
         public Guid QuestionId { get; set; }
         public Guid AnswerId { get; set; }
     }
+
+    public class MemberAnswerResponse
+    {
+        public QuizResult QuizResult { get; set; }
+        public IEnumerable<Therapist> Therapists { get; set; }
+    }
 }

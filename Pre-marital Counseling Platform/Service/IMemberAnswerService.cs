@@ -41,15 +41,52 @@ namespace SWP391.Service
 
             try
             {
+                decimal total = 0;
                 foreach(var item in dto)
                 {
                     var memberAnswerMappper = _mapper.Map<MemberAnswer>(item);
                     _context.MemberAnswers.Add(memberAnswerMappper);
+                    var anwser = _context.Answers
+                        .FirstOrDefault(x => x.AnswerId == item.AnswerId);
+                    total += anwser.Score;
                 }
 
-                if(_context.SaveChanges() > 0)
+                var quiz = _context.Questions
+                    .Include(c => c.Quiz)
+                    .FirstOrDefault(x => x.QuestionId == dto[0].QuestionId);
+                var quizResult = await _context.QuizResults.FirstOrDefaultAsync(x => x.QuizId == quiz.QuizId && total <= x.Score);
+
+                var memberResult = new CreateMemberResultDTO
                 {
-                    return Ok("Save Successfully");
+                    QuizId = quiz.QuizId,
+                    MemberId = dto[0].MemberId,
+                    Score = total,
+                    QuizResultId = quizResult.QuizResultId
+                };
+
+                var memberResultMapper = _mapper.Map<MemberResult>(memberResult);
+                _context.MemberResults.Add(memberResultMapper);
+
+                var specification = _context.Specifications
+                    .FirstOrDefault(x => x.Name == quizResult.Title && x.Level == quizResult.Level);
+
+                var therapists = _context.TherapistSpecifications
+                    .AsQueryable()
+                    .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
+                    .Where(x => x.SpecificationId == specification.SpecificationId)
+                    .GroupBy(x => x.SpecificationId)
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist));
+
+
+                var response = new MemberAnswerResponse
+                {
+                    QuizResult = quizResult,
+                    Therapists = therapists.TryGetValue(specification.SpecificationId, out var therapistsList) ? therapistsList : new List<Therapist>()
+                };
+
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(response);
                 }else
                 {
                     return BadRequest("Failed to save");

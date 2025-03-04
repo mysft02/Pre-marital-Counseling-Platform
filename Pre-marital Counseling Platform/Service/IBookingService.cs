@@ -39,13 +39,19 @@ namespace SWP391.Service
             {
                 List<BookingDTO> bookings = new List<BookingDTO>();
                 bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
                     .Select(x => new BookingDTO
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
-                        Status = x.Status
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
                     })
                     .ToList();
 
@@ -59,13 +65,19 @@ namespace SWP391.Service
             try
             {
                 var booking = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
                     .Select(x => new BookingDTO
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
                         TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
-                        Status = x.Status
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
                     })
                     .Where(x => x.BookingId == id);
 
@@ -79,6 +91,20 @@ namespace SWP391.Service
             try
             {
                 var bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
+                    .Select(x => new BookingDTO
+                    {
+                        BookingId = x.BookingId,
+                        MemberId = x.MemberId,
+                        TherapistId = x.TherapistId,
+                        ScheduleId = x.ScheduleId,
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
+                    })
                     .Where(x => x.MemberId == id)
                     .ToList();
 
@@ -92,6 +118,20 @@ namespace SWP391.Service
             try
             {
                 var bookings = _context.Bookings
+                    .Include(e => e.Feedback)
+                    .Include(e => e.Schedule)
+                    .Include(e => e.Therapist)
+                    .Select(x => new BookingDTO
+                    {
+                        BookingId = x.BookingId,
+                        MemberId = x.MemberId,
+                        TherapistId = x.TherapistId,
+                        ScheduleId = x.ScheduleId,
+                        Status = x.Status,
+                        Feedback = x.Feedback,
+                        Schedule = x.Schedule,
+                        Therapist = x.Therapist,
+                    })
                     .Where(x => x.TherapistId == id)
                     .ToList();
 
@@ -140,6 +180,9 @@ namespace SWP391.Service
                 bookingMapped.Fee = therapist.ConsultationFee;
 
                 _context.Bookings.Add(bookingMapped);
+
+                slot.IsAvailable = false;
+                _context.Schedules.Update(slot);
 
                 var transaction = new TransactionCreateDTO
                 {
@@ -241,6 +284,10 @@ namespace SWP391.Service
                     wallet.Balance += booking.Fee;
                     _context.Wallets.Update(wallet);
                 }
+
+                var slot = booking.Schedule;
+                slot.IsAvailable = true;
+                _context.Schedules.Update(slot);
 
                 BookingReturnDTO bookingReturn = new BookingReturnDTO
                 {
