@@ -25,6 +25,8 @@ public class PmcsDbContext : IdentityDbContext
     public new DbSet<Answer> Answers { get; set; }
     public new DbSet<MemberAnswer> MemberAnswers { get; set; }
 
+    public new DbSet<Certificate> Certificates { get; set; }
+
     private readonly string COLLATION = "SQL_Latin1_General_CP1_CI_AI";
 
     public PmcsDbContext(DbContextOptions<PmcsDbContext> options) : base(options) { }
@@ -228,6 +230,14 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Member).WithMany().HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(e => e.Question).WithMany().HasForeignKey(e => e.QuestionId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Answer).WithMany().HasForeignKey(u => u.AnswerId).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<Certificate>(entity =>
+        {
+            entity.HasKey(u => u.CertificateId);
+            entity.HasOne(u => u.Therapist).WithMany(e => e.Certificates).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(u => u.CertificateName).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.CertificateUrl).IsRequired();
         });
     }
 }

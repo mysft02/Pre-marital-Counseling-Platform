@@ -125,7 +125,7 @@ namespace SWP391.Service
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
-                        TherapistId = x.TherapistId,
+                         TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status,
                         Feedback = x.Feedback,
