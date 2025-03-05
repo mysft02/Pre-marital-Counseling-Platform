@@ -39,7 +39,7 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Update_Certificate")]
-        public async Task<IActionResult> UpdateCertificate([FromBody] UpdateCertificateDTO dto)
+        public async Task<IActionResult> UpdateCertificate([FromBody] CreateCertificateDTO dto)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
