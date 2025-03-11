@@ -81,8 +81,19 @@ namespace SWP391.Service
                 questionMapped.CreatedBy = Guid.Parse(userId);
                 questionMapped.UpdatedAt = DateTime.Now;
                 questionMapped.UpdatedBy = Guid.Parse(userId);
-
                 _context.Questions.Add(questionMapped);
+
+                foreach (var answer in questionCreateDTO.Answers)
+                {
+                    var answerMapped = _mapper.Map<Answer>(answer);
+                    answerMapped.QuestionId = questionMapped.QuestionId;
+                    answerMapped.CreatedBy = Guid.Parse(userId);
+                    answerMapped.UpdatedAt = DateTime.Now;
+                    answerMapped.UpdatedBy= Guid.Parse(userId);
+                    answerMapped.CreatedAt = DateTime.Now;
+                    _context.Answers.Add(answerMapped);
+                }
+
                 var result = _context.SaveChanges();
                 if (result > 0)
                 {

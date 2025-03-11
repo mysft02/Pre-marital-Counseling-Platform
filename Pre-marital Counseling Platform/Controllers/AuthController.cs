@@ -52,5 +52,15 @@ namespace SWP391.Controllers
         {
             return await _authService.HandleLogout();
         }
+
+        [Authorize]
+        [HttpGet("GetWallet")]
+        public async Task<IActionResult> GetWallet()
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+
+            return await _authService.HandleGetWallet(userId);
+        }
     }
 }

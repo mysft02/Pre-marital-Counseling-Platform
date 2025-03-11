@@ -17,6 +17,7 @@ namespace SWP391.DTO
         {
             CreateMap<Answer, AnswerDTO>().ReverseMap();
             CreateMap<Answer, CreateAnswerDTO>().ReverseMap();
+            CreateMap<Answer, AnswerCreateDTO>().ReverseMap();
         }
     }
 }

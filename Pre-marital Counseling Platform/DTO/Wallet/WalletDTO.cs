@@ -16,6 +16,12 @@ namespace SWP391.DTO
         public decimal Balance { get; set; }
     }
 
+    public class WalletResponseDTO
+    {
+        public Wallet Wallet { get; set; }
+        public List<Transaction> Transactions { get; set; }
+    }
+
     public class WalletProfile : Profile
     {
         public WalletProfile()
