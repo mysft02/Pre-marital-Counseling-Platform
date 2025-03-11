@@ -23,7 +23,10 @@ public class StorageController : ControllerBase
 
         try
         {
-            var fileName = $"{DateTime.Now.Ticks}_{file.FileName}";
+            var currentUser = HttpContext.User;
+            var userEmail = currentUser.FindFirst("Email")?.Value;
+
+            var fileName = $"{userEmail}_{file.FileName}";
 
             using (var stream = file.OpenReadStream())
             {

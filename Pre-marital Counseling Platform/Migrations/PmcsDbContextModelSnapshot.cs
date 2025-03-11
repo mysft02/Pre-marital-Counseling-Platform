@@ -388,6 +388,31 @@ namespace SWP391.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("SWP391.Domain.Certificate", b =>
+                {
+                    b.Property<Guid>("CertificateId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CertificateName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("CertificateUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TherapistId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("CertificateId");
+
+                    b.HasIndex("TherapistId");
+
+                    b.ToTable("Certificates");
+                });
+
             modelBuilder.Entity("SWP391.Domain.Feedback", b =>
                 {
                     b.Property<Guid>("FeedbackId")
@@ -1062,6 +1087,17 @@ namespace SWP391.Migrations
                     b.Navigation("UpdatedUser");
                 });
 
+            modelBuilder.Entity("SWP391.Domain.Certificate", b =>
+                {
+                    b.HasOne("SWP391.Domain.Therapist", "Therapist")
+                        .WithMany("Certificates")
+                        .HasForeignKey("TherapistId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Therapist");
+                });
+
             modelBuilder.Entity("SWP391.Domain.Feedback", b =>
                 {
                     b.HasOne("SWP391.Domain.Booking", "Booking")
@@ -1340,6 +1376,8 @@ namespace SWP391.Migrations
 
             modelBuilder.Entity("SWP391.Domain.Therapist", b =>
                 {
+                    b.Navigation("Certificates");
+
                     b.Navigation("Schedules");
 
                     b.Navigation("Specialty");
