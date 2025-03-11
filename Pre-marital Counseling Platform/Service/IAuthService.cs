@@ -21,6 +21,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleRegister(UserRegisterDTO userRegisterDTO);
         Task<IActionResult> HandleUpdateProfile(UserUpdateDTO userUpdateDTO, string id);
         Task<IActionResult> HandleLogout();
+        Task<IActionResult> HandleGetWallet(string userId);
     }
 
     public class AuthService : ControllerBase, IAuthService
@@ -192,6 +193,31 @@ namespace SWP391.Service
                 });
 
                 return Ok("Logged out successfully");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> HandleGetWallet(string userId)
+        {
+            try
+            {
+                var userWallet = _context.Wallets
+                    .FirstOrDefault(x => x.UserId == Guid.Parse(userId));
+
+                var userTransaction = _context.Transactions
+                    .Where(x => x.CreatedBy == Guid.Parse(userId))
+                    .ToList();
+
+                var response = new WalletResponseDTO
+                {
+                    Wallet = userWallet,
+                    Transactions = userTransaction
+                };
+
+                return Ok(response);
             }
             catch (Exception ex)
             {

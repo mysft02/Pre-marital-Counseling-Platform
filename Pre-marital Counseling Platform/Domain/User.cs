@@ -18,4 +18,5 @@ public class User
     public Guid CreatedBy { get; set; }
     public Guid UpdatedBy { get; set; }
     public List<Booking> Bookings { get; set; }
+    public List<Transaction> Transactions { get; set; }
 }

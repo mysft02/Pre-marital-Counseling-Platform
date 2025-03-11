@@ -23,7 +23,7 @@ namespace SWP391.Controllers
         public async Task<IActionResult> GetVNPayUrl([FromBody] VnPayRequestDTO vnPayRequestDTO)
         {
             var currentUser = HttpContext.User;
-            var currentUserId = currentUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var currentUserId = currentUser.FindFirst("UserId")?.Value;
             var url = HttpContext.Request.GetDisplayUrl();
 
             return await _paymentService.HandleCreateVNPayUrl(HttpContext, vnPayRequestDTO, currentUserId, url);

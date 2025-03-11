@@ -1311,7 +1311,7 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.Transaction", b =>
                 {
                     b.HasOne("SWP391.Domain.User", "CreatedUser")
-                        .WithMany()
+                        .WithMany("Transactions")
                         .HasForeignKey("CreatedBy")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
@@ -1386,6 +1386,8 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.User", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
         }
