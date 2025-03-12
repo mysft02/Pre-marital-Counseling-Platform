@@ -85,6 +85,10 @@ namespace SWP391.Service
 
                 foreach (var answer in questionCreateDTO.Answers)
                 {
+                    if(answer.Score > 20)
+                    {
+                        return BadRequest("Score must be less than 20");
+                    }
                     var answerMapped = _mapper.Map<Answer>(answer);
                     answerMapped.QuestionId = questionMapped.QuestionId;
                     answerMapped.CreatedBy = Guid.Parse(userId);

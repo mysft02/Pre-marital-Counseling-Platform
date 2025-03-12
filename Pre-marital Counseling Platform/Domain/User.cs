@@ -19,4 +19,5 @@ public class User
     public Guid UpdatedBy { get; set; }
     public List<Booking> Bookings { get; set; }
     public List<Transaction> Transactions { get; set; }
+    public List<MoneyWithdraw> MoneyWithdraws { get; set; }
 }

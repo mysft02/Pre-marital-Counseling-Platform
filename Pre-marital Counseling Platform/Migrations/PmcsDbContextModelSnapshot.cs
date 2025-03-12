@@ -527,6 +527,51 @@ namespace SWP391.Migrations
                     b.ToTable("MemberResults");
                 });
 
+            modelBuilder.Entity("SWP391.Domain.MoneyWithdraw", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Money")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<Guid>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("UpdatedBy");
+
+                    b.ToTable("MoneyWithdraws");
+                });
+
             modelBuilder.Entity("SWP391.Domain.Question", b =>
                 {
                     b.Property<Guid>("QuestionId")
@@ -1178,6 +1223,33 @@ namespace SWP391.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SWP391.Domain.MoneyWithdraw", b =>
+                {
+                    b.HasOne("SWP391.Domain.User", "CreatedUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SWP391.Domain.User", "Customer")
+                        .WithMany("MoneyWithdraws")
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("SWP391.Domain.User", "UpdatedUser")
+                        .WithMany()
+                        .HasForeignKey("UpdatedBy")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CreatedUser");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("UpdatedUser");
+                });
+
             modelBuilder.Entity("SWP391.Domain.Question", b =>
                 {
                     b.HasOne("SWP391.Domain.User", "CreatedUser")
@@ -1386,6 +1458,8 @@ namespace SWP391.Migrations
             modelBuilder.Entity("SWP391.Domain.User", b =>
                 {
                     b.Navigation("Bookings");
+
+                    b.Navigation("MoneyWithdraws");
 
                     b.Navigation("Transactions");
                 });

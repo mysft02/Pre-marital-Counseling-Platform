@@ -52,6 +52,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .ToList();
 
@@ -78,6 +79,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.BookingId == id);
 
@@ -104,6 +106,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.MemberId == id)
                     .ToList();
@@ -125,12 +128,13 @@ namespace SWP391.Service
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
-                         TherapistId = x.TherapistId,
+                        TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status,
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.TherapistId == id)
                     .ToList();

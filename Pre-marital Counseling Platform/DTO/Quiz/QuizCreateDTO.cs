@@ -13,7 +13,6 @@ namespace SWP391.DTO
 
     public class QuizResultCreateDTO
     {
-        public Guid QuizId { get; set; }
         public decimal Score { get; set; }
         public int Level { get; set; }
         public string Title { get; set; }

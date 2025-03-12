@@ -13,6 +13,7 @@ namespace SWP391.DTO
     public class MemberAnswerResponse
     {
         public QuizResult QuizResult { get; set; }
+        public string UserScore { get; set; }
         public IEnumerable<Therapist> Therapists { get; set; }
     }
 }

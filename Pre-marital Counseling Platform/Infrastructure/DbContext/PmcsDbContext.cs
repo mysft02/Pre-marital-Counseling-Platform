@@ -24,7 +24,7 @@ public class PmcsDbContext : IdentityDbContext
     public new DbSet<Question> Questions { get; set; }
     public new DbSet<Answer> Answers { get; set; }
     public new DbSet<MemberAnswer> MemberAnswers { get; set; }
-
+    public new DbSet<MoneyWithdraw> MoneyWithdraws { get; set; }
     public new DbSet<Certificate> Certificates { get; set; }
 
     private readonly string COLLATION = "SQL_Latin1_General_CP1_CI_AI";
@@ -239,6 +239,20 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Therapist).WithMany(e => e.Certificates).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.CertificateName).IsRequired().HasMaxLength(100);
             entity.Property(u => u.CertificateUrl).IsRequired();
+        });
+
+        modelBuilder.Entity<MoneyWithdraw>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasOne(u => u.Customer).WithMany(e => e.MoneyWithdraws).HasForeignKey(u => u.CustomerId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (WithdrawStatusEnum)Enum.Parse(typeof(WithdrawStatusEnum), v));
+            entity.Property(u => u.Money).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
+            entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(e => e.UpdatedUser).WithMany().HasForeignKey(e => e.UpdatedBy).OnDelete(DeleteBehavior.NoAction);
         });
     }
 }
