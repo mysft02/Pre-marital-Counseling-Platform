@@ -67,18 +67,6 @@ namespace SWP391.Service
             {
                 var nCertificate = _mapper.Map<Certificate>(dto);
 
-                var check = true;
-                while (check)
-                {
-                    var id = Guid.NewGuid();
-                    var checkId = _context.Certificates.FirstOrDefault(x => x.CertificateId == id);
-                    if (checkId == null)
-                    {
-                        nCertificate.CertificateId = id;
-                        check = false;
-                    }
-                }
-
                 _context.Certificates.Add(nCertificate);
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)

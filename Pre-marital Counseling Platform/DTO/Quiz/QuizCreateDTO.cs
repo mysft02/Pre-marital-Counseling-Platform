@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SWP391.Domain;
 
 namespace SWP391.DTO
 {
@@ -32,8 +31,8 @@ namespace SWP391.DTO
     {
         public QuizResultProfile()
         {
-            CreateMap<QuizResultCreateDTO, QuizResult>().ReverseMap();
-            CreateMap<QuizResult, QuizResultDTO>().ReverseMap();
+            CreateMap<QuizResultCreateDTO, SWP391.Domain.QuizResult>().ReverseMap();
+            CreateMap<SWP391.Domain.QuizResult, QuizResultDTO>().ReverseMap();
         }
     }
 }
