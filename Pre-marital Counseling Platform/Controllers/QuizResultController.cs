@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using SWP391.DTO;
 using SWP391.Service;
 
 namespace SWP391.Controllers
@@ -7,19 +9,29 @@ namespace SWP391.Controllers
     [ApiController]
     public class QuizResultController : ControllerBase
     {
-        private readonly IQuizService _service;
+        private readonly IQuizResultService _service;
 
-        public QuizResultController(IQuizService service)
+        public QuizResultController(IQuizResultService service)
         {
             _service = service;
         }
 
-        [HttpPost("Create_List_Quiz_Result")]
-        public async Task<IActionResult> CreateQuizResult([FromBody] List<CreateListQuizResultDTO> dto)
+        [Authorize]
+        [HttpPost("Create_Quiz_Result")]
+        public async Task<IActionResult> CreateQuizResult([FromBody] List<CreateQuizResultDTO> dto)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
-            return await _service.
+            return await _service.CreateQuizResult(dto, userId);
+        }
+
+        [Authorize]
+        [HttpPost("Update_Quiz_Result")]
+        public async Task<IActionResult> UpdateQuizResult([FromBody] CreateQuizResultDTO dto)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+            return await _service.UpdateQuizResult(dto, userId);
         }
     }
 }

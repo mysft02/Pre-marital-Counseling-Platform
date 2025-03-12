@@ -12,7 +12,7 @@ namespace SWP391.DTO
 
     public class MemberAnswerResponse
     {
-        public QuizResult QuizResult { get; set; }
+        public SWP391.Domain.QuizResult QuizResult { get; set; }
         public IEnumerable<Therapist> Therapists { get; set; }
     }
 }
