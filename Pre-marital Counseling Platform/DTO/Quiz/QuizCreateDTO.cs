@@ -8,7 +8,6 @@ namespace SWP391.DTO
         public Guid CategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<QuizResultCreateDTO> QuizResults { get; set; } 
     }
 
     public class QuizResultCreateDTO

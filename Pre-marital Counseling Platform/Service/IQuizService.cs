@@ -78,18 +78,6 @@ namespace SWP391.Service
                 quizMapped.UpdatedBy = Guid.Parse(userId);
                 quizMapped.QuizStatus = QuizStatusEnum.ACTIVE;
                 _context.Quizes.Add(quizMapped);
-
-                foreach (var item in quizCreateDTO.QuizResults)
-                {
-                    var quizResultMapped = _mapper.Map<QuizResult>(item);
-                    quizResultMapped.QuizId = quizMapped.QuizId;
-                    quizResultMapped.CreatedAt = DateTime.Now;
-                    quizResultMapped.CreatedBy = Guid.Parse(userId);
-                    quizResultMapped.UpdatedAt = DateTime.Now;
-                    quizResultMapped.UpdatedBy = Guid.Parse(userId);
-                    _context.QuizResults.Add(quizResultMapped);
-                }
-
                 
                 var result = _context.SaveChanges();
                 if(result > 0)
