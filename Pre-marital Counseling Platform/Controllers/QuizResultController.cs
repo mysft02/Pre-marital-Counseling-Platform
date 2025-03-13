@@ -20,6 +20,11 @@ namespace SWP391.Controllers
         [HttpPost("Create_Quiz_Result")]
         public async Task<IActionResult> CreateQuizResult([FromBody] List<CreateQuizResultDTO> dto)
         {
+            if (dto == null || dto.Count < 1 || dto.Count > 4)
+            {
+                return BadRequest("You must provide between 1 and 4 quiz results.");
+            }
+
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
             return await _service.CreateQuizResult(dto, userId);
