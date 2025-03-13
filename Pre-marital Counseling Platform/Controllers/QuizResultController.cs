@@ -25,6 +25,14 @@ namespace SWP391.Controllers
                 return BadRequest("You must provide between 1 and 4 quiz results.");
             }
 
+            foreach (var item in dto)
+            {
+                if(item.Level != 25 || item.Level != 50 || item.Level != 75 || item.Level != 100)
+                {
+                    return BadRequest("Level must be 25, 50, 75 or 100");
+                }
+            }
+
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
             return await _service.CreateQuizResult(dto, userId);
