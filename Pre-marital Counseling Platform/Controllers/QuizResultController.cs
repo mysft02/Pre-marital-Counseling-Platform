@@ -27,9 +27,9 @@ namespace SWP391.Controllers
 
             foreach (var item in dto)
             {
-                if(item.Level != 25 || item.Level != 50 || item.Level != 75 || item.Level != 100)
+                if(item.Level < 1 || item.Level > 4)
                 {
-                    return BadRequest("Level must be 25, 50, 75 or 100");
+                    return BadRequest("Level must be 1, 2, 3 or 4");
                 }
             }
 

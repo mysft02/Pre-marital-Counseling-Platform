@@ -27,22 +27,19 @@ namespace SWP391.Service
         {
             try
             {
-                if(userId == null)
+                foreach (var item in dto)
                 {
-                    return BadRequest("User ID is required");
-                }
-
-                foreach (var item in dto) {
                     var quizResult = _mapper.Map<QuizResult>(item);
+                    quizResult.QuizResultId = Guid.NewGuid();
                     quizResult.CreatedBy = Guid.Parse(userId);
                     quizResult.CreatedAt = DateTime.Now;
                     quizResult.UpdatedBy = Guid.Parse(userId);
                     quizResult.UpdatedAt = DateTime.Now;
                     _context.Add(quizResult);
                 }
-                
+
                 var rs = await _context.SaveChangesAsync();
-                if(rs > 0)
+                if (rs > 0)
                 {
                     return Ok("Create successfully");
                 }
@@ -72,7 +69,7 @@ namespace SWP391.Service
                     return BadRequest("Update failed");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

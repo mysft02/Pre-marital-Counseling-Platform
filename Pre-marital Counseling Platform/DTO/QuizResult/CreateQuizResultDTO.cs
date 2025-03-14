@@ -5,7 +5,6 @@ namespace SWP391.DTO
 {
     public class CreateQuizResultDTO
     {
-        public Guid QuizResultId { get; set; }
         public Guid QuizId { get; set; }
         public decimal Score { get; set; }
         public int Level { get; set; }
