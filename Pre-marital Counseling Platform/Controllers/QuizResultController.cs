@@ -16,6 +16,12 @@ namespace SWP391.Controllers
             _service = service;
         }
 
+        [HttpGet("Get_All_Quiz_Result")]
+        public async Task<IActionResult> GetAllQuizResult()
+        {
+            return await _service.GetAllQuizResult();
+        }
+
         [Authorize]
         [HttpPost("Create_Quiz_Result")]
         public async Task<IActionResult> CreateQuizResult([FromBody] List<CreateQuizResultDTO> dto)
@@ -40,8 +46,14 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Update_Quiz_Result")]
-        public async Task<IActionResult> UpdateQuizResult([FromBody] CreateQuizResultDTO dto)
+        public async Task<IActionResult> UpdateQuizResult([FromBody] UpdateQuizResultDTO dto)
         {
+                if (dto.Level < 1 || dto.Level > 4)
+                {
+                    return BadRequest("Level must be 1, 2, 3 or 4");
+                }
+            
+
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
             return await _service.UpdateQuizResult(dto, userId);

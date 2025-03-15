@@ -9,7 +9,8 @@ namespace SWP391.Service
     public interface IQuizResultService
     {
         Task<IActionResult> CreateQuizResult(List<CreateQuizResultDTO> dto, string? userId);
-        Task<IActionResult> UpdateQuizResult(CreateQuizResultDTO dto, string? userId);
+        Task<IActionResult> UpdateQuizResult(UpdateQuizResultDTO dto, string? userId);
+        Task<IActionResult> GetAllQuizResult();
     }
 
     public class QuizResultService : ControllerBase, IQuizResultService
@@ -53,11 +54,25 @@ namespace SWP391.Service
             }
         }
 
-        public async Task<IActionResult> UpdateQuizResult(CreateQuizResultDTO dto, string? userId)
+        public async Task<IActionResult> GetAllQuizResult()
+        {
+            try
+            {
+                var list = _context.QuizResults.ToList();
+                return Ok(list);
+            }catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> UpdateQuizResult(UpdateQuizResultDTO dto, string? userId)
         {
             try
             {
                 var quizResult = _mapper.Map<QuizResult>(dto);
+                quizResult.UpdatedBy = Guid.Parse(userId);
+                quizResult.UpdatedAt = DateTime.Now;
                 _context.QuizResults.Update(quizResult);
                 if (_context.SaveChanges() > 0)
                 {
