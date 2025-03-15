@@ -9,4 +9,11 @@
         public decimal Score { get; set; }
         
     }
+
+    public class MemberResultResponseDTO
+    {
+        public Guid MemberResultId { get; set; }
+        public string QuizName { get; set; }
+        public decimal Score { get; set; }
+    }
 }

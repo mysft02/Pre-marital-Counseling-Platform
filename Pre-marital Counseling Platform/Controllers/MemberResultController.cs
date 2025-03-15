@@ -23,10 +23,10 @@ namespace SWP391.Controllers
             return await _memberResultService.GetAllMemberResult();
         }
 
-        [HttpGet("Get_Member_Result_By_Id")]
-        public async Task<IActionResult> GetMemberResultById(Guid id)
+        [HttpGet("Get_Member_Result_By_UserId")]
+        public async Task<IActionResult> GetMemberResultByUserId(Guid id)
         {
-            return await _memberResultService.GetMemberResultById(id);
+            return await _memberResultService.GetMemberResultByUserId(id);
         }
 
         [Authorize]

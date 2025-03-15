@@ -30,7 +30,6 @@ namespace SWP391.Service
                 foreach (var item in dto)
                 {
                     var quizResult = _mapper.Map<QuizResult>(item);
-                    quizResult.QuizResultId = Guid.NewGuid();
                     quizResult.CreatedBy = Guid.Parse(userId);
                     quizResult.CreatedAt = DateTime.Now;
                     quizResult.UpdatedBy = Guid.Parse(userId);

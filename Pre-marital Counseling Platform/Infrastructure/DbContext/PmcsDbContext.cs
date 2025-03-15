@@ -92,7 +92,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Therapist).WithMany(e => e.Schedules).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Date).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(u => u.Slot).HasDefaultValue(0);
-            entity.Property(u => u.IsAvailable).HasDefaultValue(true);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (ScheduleStatusEnum)Enum.Parse(typeof(ScheduleStatusEnum), v));
         });
 
         modelBuilder.Entity<Booking>(entity =>

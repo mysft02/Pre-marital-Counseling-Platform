@@ -10,7 +10,7 @@ namespace SWP391.Service
     public interface IMemberResultService
     {
         Task<IActionResult> GetAllMemberResult();
-        Task<IActionResult> GetMemberResultById(Guid id);
+        Task<IActionResult> GetMemberResultByUserId(Guid id);
         Task<IActionResult> CreateMemberResult(CreateMemberResultDTO dto, string? userId);
         Task<IActionResult> UpdateMemberResult(UpdateMemberResultDTO dto, string? userId);
         Task<IActionResult> CalculateMemberResult(CreateMemberResultDTO dto, string? userId);
@@ -48,18 +48,20 @@ namespace SWP391.Service
             }
         }
 
-        public async Task<IActionResult> GetMemberResultById(Guid id)
+        public async Task<IActionResult> GetMemberResultByUserId(Guid id)
         {
             try
             {
-                var memberResult = _context.MemberResults.Where(x => x.MemberResultId == id).Select(x => new MemberResultDTO
+                var memberResult = _context.MemberResults
+                    .Include(x => x.Quiz)
+                    .Where(x => x.MemberId == id)
+                    .Select(x => new MemberResultResponseDTO
                 {
                     MemberResultId = x.MemberResultId,
-                    QuizId = x.QuizId,
-                    MemberId = x.MemberId,
-                    QuizResultId = x.QuizResultId,
+                    QuizName = x.Quiz.Name,
                     Score = x.Score
-                }).FirstOrDefault();
+                })
+                    .ToList();
                 return Ok(memberResult);
             }
             catch (Exception ex)

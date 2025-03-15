@@ -89,11 +89,21 @@ namespace SWP391.Service
                 var withdraw = _context.MoneyWithdraws
                     .FirstOrDefault(x => x.Id == withdrawUpdateDTO.Id);
 
+                if (withdrawUpdateDTO.Status == WithdrawStatusEnum.Approved && withdraw.Status != WithdrawStatusEnum.Approved)
+                {
+                    var wallet = _context.Wallets
+                        .FirstOrDefault(x => x.UserId == withdraw.CustomerId);
+
+                    wallet.Balance -= withdraw.Money;
+                    _context.Wallets.Update(wallet);
+                }
+
                 withdraw.Status = withdrawUpdateDTO.Status;
                 withdraw.UpdatedBy = Guid.Parse(userId);
                 withdraw.UpdatedAt = DateTime.Now;
 
                 _context.MoneyWithdraws.Update(withdraw);
+
                 if (_context.SaveChanges() > 0)
                 {
                     return Ok(withdraw);

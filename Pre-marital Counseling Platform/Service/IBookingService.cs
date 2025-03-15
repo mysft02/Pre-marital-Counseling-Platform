@@ -149,7 +149,7 @@ namespace SWP391.Service
             try
             {
                 var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.ScheduleId);
-                if(slot.IsAvailable == false)
+                if(slot.Status != ScheduleStatusEnum.Available)
                 {
                     return BadRequest("Slot is not available!");
                 }
@@ -185,7 +185,7 @@ namespace SWP391.Service
 
                 _context.Bookings.Add(bookingMapped);
 
-                slot.IsAvailable = false;
+                slot.Status = ScheduleStatusEnum.Booked;
                 _context.Schedules.Update(slot);
 
                 var transaction = new TransactionCreateDTO
@@ -290,7 +290,7 @@ namespace SWP391.Service
                 }
 
                 var slot = booking.Schedule;
-                slot.IsAvailable = true;
+                slot.Status = ScheduleStatusEnum.Available;
                 _context.Schedules.Update(slot);
 
                 BookingReturnDTO bookingReturn = new BookingReturnDTO

@@ -16,8 +16,8 @@ namespace SWP391.DTO
     {
         public CreateQuizResultProfile()
         {
-            CreateMap<QuizResult, CreateQuizResultDTO>().ReverseMap();
-            CreateMap<CreateQuizResultDTO, QuizResult>().ReverseMap();
+            CreateMap<QuizResult, CreateQuizResultDTO>().ReverseMap()
+                .ForMember(x => x.QuizId, opt => opt.MapFrom(x => x.QuizId));
         }
     }
 }

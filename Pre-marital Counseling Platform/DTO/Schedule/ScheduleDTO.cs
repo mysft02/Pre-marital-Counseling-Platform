@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SWP391.Domain;
+using SWP391.Infrastructure.DataEnum;
 
 namespace SWP391.DTO
 {
@@ -9,7 +10,7 @@ namespace SWP391.DTO
         public Guid TherapistId { get; set; }
         public DateTime Date { get; set; }
         public int Slot { get; set; }
-        public bool IsAvailable { get; set; }
+        public ScheduleStatusEnum Status { get; set; }
     }
 
     public class ScheduleResponseDTO
@@ -17,7 +18,7 @@ namespace SWP391.DTO
         public Guid ScheduleId { get; set; }
         public DateTime Date { get; set; }
         public int Slot { get; set; }
-        public bool IsAvailable { get; set; }
+        public ScheduleStatusEnum Status { get; set; }
     }
 
     public class ScheduleProfile : Profile
