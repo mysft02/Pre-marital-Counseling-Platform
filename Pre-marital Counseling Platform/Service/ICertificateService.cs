@@ -66,6 +66,7 @@ namespace SWP391.Service
             try
             {
                 var nCertificate = _mapper.Map<Certificate>(dto);
+                nCertificate.CertificateId = Guid.NewGuid();
 
                 _context.Certificates.Add(nCertificate);
                 var result = await _context.SaveChangesAsync();
