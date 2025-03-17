@@ -36,6 +36,28 @@ namespace SWP391.Service
                     Money = withdrawCreateDTO.Money,
                 };
 
+                var wallet = _context.Wallets.FirstOrDefault(x => x.UserId == withdraw.CustomerId);
+
+                if(wallet.Balance < withdraw.Money)
+                {
+                    return BadRequest("Not enough balance");
+                }
+
+                wallet.Balance -= withdraw.Money;
+                _context.Wallets.Update(wallet);
+                var transaction = new TransactionCreateDTO
+                {
+                    Amount = -withdraw.Money,
+                    Description = "Withdraw Money"
+                };
+
+                var transMapped = _mapper.Map<Transaction>(transaction);
+                transMapped.CreatedBy = withdraw.CustomerId;
+                transMapped.CreatedAt = DateTime.Now;
+                transMapped.UpdatedAt = DateTime.Now;
+                transMapped.UpdatedBy = withdraw.CustomerId;
+                _context.Transactions.Add(transMapped);
+
                 var withdrawMapped = _mapper.Map<MoneyWithdraw>(withdraw);
                 withdrawMapped.CreatedBy = Guid.Parse(userId);
                 withdrawMapped.CreatedAt = DateTime.Now;
@@ -89,13 +111,31 @@ namespace SWP391.Service
                 var withdraw = _context.MoneyWithdraws
                     .FirstOrDefault(x => x.Id == withdrawUpdateDTO.Id);
 
-                if (withdrawUpdateDTO.Status == WithdrawStatusEnum.Approved && withdraw.Status != WithdrawStatusEnum.Approved)
+                if(withdraw.Status != WithdrawStatusEnum.Pending)
+                {
+                    return BadRequest("Withdraw is not pending");
+                }
+
+                if (withdrawUpdateDTO.Status == WithdrawStatusEnum.Rejected)
                 {
                     var wallet = _context.Wallets
                         .FirstOrDefault(x => x.UserId == withdraw.CustomerId);
 
-                    wallet.Balance -= withdraw.Money;
+                    wallet.Balance += withdraw.Money;
                     _context.Wallets.Update(wallet);
+
+                    var transaction = new TransactionCreateDTO
+                    {
+                        Amount = withdraw.Money,
+                        Description = "Cancel Withdraw Money"
+                    };
+                    
+                    var transMapped = _mapper.Map<Transaction>(transaction);
+                    transMapped.CreatedBy = Guid.Parse(userId);
+                    transMapped.CreatedAt = DateTime.Now;
+                    transMapped.UpdatedAt = DateTime.Now;
+                    transMapped.UpdatedBy = Guid.Parse(userId);
+                    _context.Transactions.Add(transMapped);
                 }
 
                 withdraw.Status = withdrawUpdateDTO.Status;
