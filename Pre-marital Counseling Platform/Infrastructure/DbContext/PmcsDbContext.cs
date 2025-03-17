@@ -242,6 +242,9 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.CertificateId);
             entity.HasOne(u => u.Therapist).WithMany(e => e.Certificates).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (CertificateStatusEnum)Enum.Parse(typeof(CertificateStatusEnum), v));
             entity.Property(u => u.CertificateName).IsRequired().HasMaxLength(100);
             entity.Property(u => u.CertificateUrl).IsRequired();
         });

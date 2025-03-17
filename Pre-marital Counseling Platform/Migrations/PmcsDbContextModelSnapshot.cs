@@ -403,6 +403,10 @@ namespace SWP391.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("TherapistId")
                         .HasColumnType("uniqueidentifier");
 
