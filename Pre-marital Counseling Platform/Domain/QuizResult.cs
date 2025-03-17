@@ -1,9 +1,12 @@
-﻿namespace SWP391.Domain
+﻿using SWP391.Infrastructure.DataEnum;
+
+namespace SWP391.Domain
 {
     public class QuizResult : BaseEntities
     {
         public Guid QuizResultId { get; set; }
         public Guid QuizId { get; set; }
+        public QuizResultStatusEnum Status { get; set; }
         public decimal Score { get; set; }
         public int Level { get; set; }
         public string Title { get; set; }

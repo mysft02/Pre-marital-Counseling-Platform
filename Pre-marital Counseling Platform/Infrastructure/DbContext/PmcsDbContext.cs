@@ -186,6 +186,9 @@ public class PmcsDbContext : IdentityDbContext
             entity.Property(u => u.Level).HasDefaultValue(1);
             entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Description).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (QuizResultStatusEnum)Enum.Parse(typeof(QuizResultStatusEnum), v));
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);

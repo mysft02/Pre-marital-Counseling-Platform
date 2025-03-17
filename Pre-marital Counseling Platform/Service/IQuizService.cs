@@ -16,6 +16,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleGetQuizById(Guid id);
         Task<IActionResult> HandleCreateQuiz(QuizCreateDTO quizCreateDTO, string userId);
         Task<IActionResult> HandleUpdateQuiz(QuizUpdateDTO quizUpdateDTO, string userId);
+        Task<IActionResult> HandleDisableQuiz(Guid id);
     }
 
     public class QuizService : ControllerBase, IQuizService
@@ -107,6 +108,27 @@ namespace SWP391.Service
 
                 _context.Quizes.Update(quiz);
                 if(_context.SaveChanges() > 0)
+                {
+                    return Ok(quiz);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleDisableQuiz(Guid id)
+        {
+            try
+            {
+                var quiz = _context.Quizes.FirstOrDefault(x => x.QuizId == id);
+
+                quiz.QuizStatus = QuizStatusEnum.INACTIVE;
+
+                _context.Quizes.Update(quiz);
+                if (_context.SaveChanges() > 0)
                 {
                     return Ok(quiz);
                 }
