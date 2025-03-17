@@ -58,5 +58,14 @@ namespace SWP391.Controllers
             var userId = currentUser.FindFirst("UserId")?.Value;
             return await _service.UpdateQuizResult(dto, userId);
         }
+
+        [Authorize]
+        [HttpPost("Delete_Quiz_Result")]
+        public async Task<IActionResult> DeleteQuizResult(Guid id)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+            return await _service.DeleteQuizResult(id, userId);
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace SWP391.Domain
+﻿using SWP391.Infrastructure.DataEnum;
+
+namespace SWP391.Domain
 {
     public class QuizResult : BaseEntities
     {
@@ -9,5 +11,6 @@
         public string Title { get; set; }
         public string Description { get; set; }
         public Quiz Quiz { get; set; }
+        public QuizResultStatusEnum Status { get; set; }
     }
 }

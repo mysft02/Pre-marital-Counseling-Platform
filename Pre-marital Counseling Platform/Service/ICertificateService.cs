@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.DTO.Certificate;
+using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
 namespace SWP391.Service
@@ -13,6 +14,8 @@ namespace SWP391.Service
         Task<IActionResult> GetCertificateById(Guid id);
         Task<IActionResult> CreateCertificate(CreateCertificateDTO dto, string userId);
         Task<IActionResult> UpdateCertificate(CreateCertificateDTO dTO, string userId);
+        Task<IActionResult> GetCertificateByTherapistId(Guid therapistId);
+        Task<IActionResult> DeleteCertificate(Guid certificateId, string userId);
     }
 
     public class CertificateService : ControllerBase, ICertificateService
@@ -101,6 +104,52 @@ namespace SWP391.Service
                 }
             }
             catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> GetCertificateByTherapistId(Guid therapistId)
+        {
+            try
+            {
+                var certificate = _mapper.Map<CertificateDTO>(_context.Certificates.Where(x => x.TherapistId == therapistId).FirstOrDefault());
+                if (certificate == null)
+                {
+                    return NotFound();
+                }
+                return Ok(certificate);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        public async Task<IActionResult> DeleteCertificate(Guid certificateId, string userId)
+        {
+            try
+            {
+                var certificate = _context.Certificates.FirstOrDefault(x => x.CertificateId == certificateId);
+                if (certificate == null)
+                {
+                    return NotFound("Certificate not found.");
+                }
+
+                certificate.Status = CertificateStatusEnum.INACTIVE;
+
+                _context.Certificates.Update(certificate);
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return Ok("Certificate deleted successfully.");
+                }
+                else
+                {
+                    return BadRequest("Failed to delete certificate.");
+                }
+            }
+            catch(Exception ex)
             {
                 return BadRequest(ex.Message);
             }
