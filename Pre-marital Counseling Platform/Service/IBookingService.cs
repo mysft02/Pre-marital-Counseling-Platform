@@ -345,7 +345,7 @@ namespace SWP391.Service
 
                 var transaction = new TransactionDTO
                 {
-                    Amount = +booking.Fee,
+                    Amount = (booking.Fee * 75 / 100),
                     Description = "Finish counseling",
                 };
 
@@ -358,8 +358,25 @@ namespace SWP391.Service
                 _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
-                wallet.Balance += booking.Fee;
+                wallet.Balance += (booking.Fee * 75 / 100);
                 _context.Wallets.Update(wallet);
+
+                var adWallet = _context.Wallets.FirstOrDefault(c => c.UserId.ToString() == userId);
+                adWallet.Balance += (booking.Fee * 25 / 100);
+                _context.Wallets.Update(adWallet);
+
+                var adTransaction = new TransactionCreateDTO
+                {
+                    Amount = +booking.Fee * 25 / 100,
+                    Description = "Finish counseling",
+                };
+
+                var adTransMapped = _mapper.Map<Transaction>(adTransaction);
+                adTransMapped.CreatedBy = Guid.Parse(userId);
+                adTransMapped.UpdatedAt = DateTime.Now;
+                adTransMapped.UpdatedBy = Guid.Parse(userId);
+                adTransMapped.CreatedAt = DateTime.Now;
+                _context.Transactions.Add(adTransMapped);
 
                 if (_context.SaveChanges() > 0)
                 {
