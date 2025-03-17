@@ -31,10 +31,22 @@ namespace SWP391.Service
         {
             try
             {
+                var scheduleQuery = _context.Schedules.AsQueryable();
                 foreach(var item in scheduleCreateDTO)
                 {
                     var scheduleMapped = _mapper.Map<Schedule>(item);
-                    _context.Schedules.Add(scheduleMapped);
+                    var duplicate = scheduleQuery.FirstOrDefault(x => x.TherapistId == scheduleMapped.TherapistId
+                                           && DateOnly.FromDateTime(x.Date) == DateOnly.FromDateTime(scheduleMapped.Date)
+                                           && x.Slot == scheduleMapped.Slot);
+
+                    if (duplicate == null)
+                    {
+                        _context.Schedules.Add(scheduleMapped);
+                    }
+                    else
+                    {
+                        duplicate.Status = scheduleMapped.Status;
+                    }
                 }
 
                 var result = _context.SaveChanges();
