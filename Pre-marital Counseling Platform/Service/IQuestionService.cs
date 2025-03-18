@@ -39,6 +39,7 @@ namespace SWP391.Service
                         QuestionContent = x.QuestionContent,
                         QuestionStatus = x.Status
                     })
+                    .Where(x => x.QuestionStatus == QuestionStatusEnum.ACTIVE)
                     .ToList();
 
                 return Ok(questions);
@@ -58,7 +59,7 @@ namespace SWP391.Service
                         QuestionContent = x.QuestionContent,
                         QuestionStatus = x.Status
                     })
-                    .Where(x => x.QuestionId == id);
+                    .Where(x => x.QuestionId == id && x.QuestionStatus == QuestionStatusEnum.ACTIVE);
 
                 return Ok(question);
             }

@@ -36,8 +36,9 @@ namespace SWP391.Service
             {
                 var Quizzes = _context.Quizes
                     .Include(x => x.Category)
-                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.Questions.Where(x => x.Status == QuestionStatusEnum.ACTIVE)).ThenInclude(x => x.Answers)
                     .Include(x => x.QuizResults)
+                    .Where(x => x.QuizStatus == QuizStatusEnum.ACTIVE)
                     .ToList();
 
                 return Ok(Quizzes);
@@ -52,7 +53,7 @@ namespace SWP391.Service
                 var Quiz = _context.Quizes
                     .Where(x => x.QuizId == id)
                     .Include(x => x.Category)
-                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.Questions.Where(x => x.Status == QuestionStatusEnum.ACTIVE)).ThenInclude(x => x.Answers)
                     .Include(x => x.QuizResults)
                     .FirstOrDefault();
 

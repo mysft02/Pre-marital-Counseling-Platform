@@ -28,6 +28,12 @@ namespace SWP391.Controllers
             return await _certificateService.GetCertificateById(id);
         }
 
+        [HttpGet("Get_Certificate_By_Therapist_Id")]
+        public async Task<IActionResult> GetCertificateByTherapistId(Guid id)
+        {
+            return await _certificateService.GetCertificateByTherapistId(id);
+        }
+
         [Authorize]
         [HttpPost("Create_Certificate")]
         public async Task<IActionResult> CreateCertificate([FromBody] CreateCertificateDTO dto)
@@ -44,6 +50,15 @@ namespace SWP391.Controllers
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
             return await _certificateService.UpdateCertificate(dto, userId);
+        }
+
+        [Authorize]
+        [HttpPost("Delete_Certificate")]
+        public async Task<IActionResult> DeleteCertificate(Guid id)
+        {
+            var currentUser = HttpContext.User;
+            var userId = currentUser.FindFirst("UserId")?.Value;
+            return await _certificateService.DeleteCertificate(id, userId);
         }
     }
 }

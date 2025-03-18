@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
 using SWP391.DTO;
+using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
 namespace SWP391.Service
@@ -11,6 +12,7 @@ namespace SWP391.Service
         Task<IActionResult> CreateQuizResult(List<CreateQuizResultDTO> dto, string? userId);
         Task<IActionResult> UpdateQuizResult(UpdateQuizResultDTO dto, string? userId);
         Task<IActionResult> GetAllQuizResult();
+        Task<IActionResult> DeleteQuizResult(Guid id, string? userId);
     }
 
     public class QuizResultService : ControllerBase, IQuizResultService
@@ -54,11 +56,42 @@ namespace SWP391.Service
             }
         }
 
+        public async Task<IActionResult> DeleteQuizResult(Guid id, string? userId)
+        {
+            try
+            {
+                var quizResult = _context.QuizResults.FirstOrDefault(x => x.QuizResultId == id);
+                if (quizResult == null)
+                {
+                    return NotFound("Quiz Result not found.");
+                }
+
+                quizResult.Status = QuizResultStatusEnum.Inactive;
+
+                _context.QuizResults.Update(quizResult);
+                var result = await _context.SaveChangesAsync();
+                if (result > 0)
+                {
+                    return Ok("Quiz Result deleted successfully.");
+                }
+                else
+                {
+                    return BadRequest("Failed to delete Quiz Result.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         public async Task<IActionResult> GetAllQuizResult()
         {
             try
             {
-                var list = _context.QuizResults.ToList();
+                var list = _context.QuizResults
+                    .Where(x => x.Status == QuizResultStatusEnum.Active)
+                    .ToList();
                 return Ok(list);
             }catch(Exception ex)
             {

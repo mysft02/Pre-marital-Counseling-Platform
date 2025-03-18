@@ -35,7 +35,7 @@ namespace SWP391.Service
                     .Select(x => new BookingResultDTO
                     {
                         BookingResultId = x.BookingResultId,
-                        BookingId = x.BookingResultId,
+                        BookingId = x.BookingId,
                         Description = x.Description,
                     })
                     .ToList();
@@ -53,7 +53,7 @@ namespace SWP391.Service
                     .Select(x => new BookingResultDTO
                     {
                         BookingResultId = x.BookingResultId,
-                        BookingId = x.BookingResultId,
+                        BookingId = x.BookingId,
                         Description = x.Description,
                     })
                     .Where(x => x.BookingResultId == id);

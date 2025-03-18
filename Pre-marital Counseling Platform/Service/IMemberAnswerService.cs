@@ -77,6 +77,11 @@ namespace SWP391.Service
                 var specification = _context.Specifications
                     .FirstOrDefault(x => x.Name == quizResult.Title && x.Level == quizResult.Level);
 
+                if(specification == null)
+                {
+                    return BadRequest("Could not find specification");
+                }
+
                 var therapists = _context.TherapistSpecifications
                     .AsQueryable()
                     .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
