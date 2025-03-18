@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using SWP391.DTO.Certificate;
+using SWP391.DTO;   
 
 namespace SWP391.DTO
 {

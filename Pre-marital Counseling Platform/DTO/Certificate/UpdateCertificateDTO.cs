@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Certificate
+﻿namespace SWP391.DTO
 {
     public class UpdateCertificateDTO
     {

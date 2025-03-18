@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using SWP391.DTO.Certificate;
+using SWP391.DTO;
 using SWP391.Service;
 
 namespace SWP391.Controllers
@@ -45,7 +45,7 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Update_Certificate")]
-        public async Task<IActionResult> UpdateCertificate([FromBody] CreateCertificateDTO dto)
+        public async Task<IActionResult> UpdateCertificate([FromBody] UpdateCertificateDTO dto)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
