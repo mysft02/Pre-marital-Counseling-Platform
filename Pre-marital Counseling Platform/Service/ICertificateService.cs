@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Microsoft.AspNetCore.Mvc;
 using SWP391.Domain;
 using SWP391.DTO;
-using SWP391.DTO.Certificate;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
 
@@ -13,7 +13,7 @@ namespace SWP391.Service
         Task<IActionResult> GetAllCertificate();
         Task<IActionResult> GetCertificateById(Guid id);
         Task<IActionResult> CreateCertificate(CreateCertificateDTO dto, string userId);
-        Task<IActionResult> UpdateCertificate(CreateCertificateDTO dTO, string userId);
+        Task<IActionResult> UpdateCertificate(UpdateCertificateDTO dTO, string userId);
         Task<IActionResult> GetCertificateByTherapistId(Guid therapistId);
         Task<IActionResult> DeleteCertificate(Guid certificateId, string userId);
     }
@@ -68,10 +68,24 @@ namespace SWP391.Service
         {
             try
             {
-                var nCertificate = _mapper.Map<Certificate>(dto);
-                nCertificate.CertificateId = Guid.NewGuid();
+                var query = _context.Certificates.AsQueryable();
 
-                _context.Certificates.Add(nCertificate);
+                var check = query.FirstOrDefault(x => x.TherapistId == dto.TherapistId && x.Status == CertificateStatusEnum.ACTIVE);
+                if (check != null)
+                {
+                    check.CertificateUrl = dto.CertificateUrl;
+                    check.CertificateName = dto.CertificateName;
+
+                    _context.Certificates.Update(check);
+                }
+                else
+                {
+                    var nCertificate = _mapper.Map<Certificate>(dto);
+                    nCertificate.Status = CertificateStatusEnum.ACTIVE;
+
+                    _context.Certificates.Add(nCertificate);
+                }
+                
                 var result = await _context.SaveChangesAsync();
                 if (result > 0)
                 {
@@ -88,11 +102,13 @@ namespace SWP391.Service
             }
         }
 
-        public async Task<IActionResult> UpdateCertificate(CreateCertificateDTO dTO, string userId)
+        public async Task<IActionResult> UpdateCertificate(UpdateCertificateDTO dTO, string userId)
         {
             try
             {
-                var certificate = _mapper.Map<Certificate>(dTO);
+                var certificate = _context.Certificates.FirstOrDefault(x => x.CertificateId == dTO.CertificateId);
+                certificate.CertificateUrl = dTO.CertificateUrl;
+                certificate.CertificateName = dTO.CertificateName;
                 _context.Certificates.Update(certificate);
                 if(_context.SaveChanges() > 0)
                 {

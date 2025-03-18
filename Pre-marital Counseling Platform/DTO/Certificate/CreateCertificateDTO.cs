@@ -1,4 +1,4 @@
-﻿namespace SWP391.DTO.Certificate
+﻿namespace SWP391.DTO
 {
     public class CreateCertificateDTO
     {
@@ -6,4 +6,5 @@
         public string CertificateName { get; set; }
         public string CertificateUrl { get; set; }
     }
+
 }
