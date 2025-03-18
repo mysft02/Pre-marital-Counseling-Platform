@@ -42,7 +42,7 @@ namespace SWP391.Service
                             ScheduleId = s.ScheduleId,
                             Date = s.Date,
                             Slot = s.Slot,
-                            IsAvailable = s.IsAvailable,
+                            Status = s.Status,
                         }).ToList(),
                         Specifications = x.Specialty.Select(n => new SpecificationResponseDTO
                         {
@@ -79,7 +79,7 @@ namespace SWP391.Service
                             ScheduleId = s.ScheduleId,
                             Date = s.Date,
                             Slot = s.Slot,
-                            IsAvailable = s.IsAvailable,
+                            Status = s.Status,
                         }).ToList(),
                         Specifications = x.Specialty.Select(n => new SpecificationResponseDTO
                         {

@@ -51,10 +51,17 @@ namespace SWP391.Service
                     total += anwser.Score;
                 }
 
-                var quiz = _context.Questions
+                var questionQuery = _context.Questions.AsQueryable();
+
+                var quiz = questionQuery
                     .Include(c => c.Quiz)
                     .FirstOrDefault(x => x.QuestionId == dto[0].QuestionId);
-                var quizResult = await _context.QuizResults.FirstOrDefaultAsync(x => x.QuizId == quiz.QuizId && total <= x.Score);
+
+                var maxScore = (questionQuery.Where(x => x.QuizId == quiz.QuizId).Count()) * 20;
+
+                var percent = (total / maxScore) * 100;
+
+                var quizResult = await _context.QuizResults.FirstOrDefaultAsync(x => x.QuizId == quiz.QuizId && percent <= x.Score);
 
                 var memberResult = new CreateMemberResultDTO
                 {
@@ -70,10 +77,15 @@ namespace SWP391.Service
                 var specification = _context.Specifications
                     .FirstOrDefault(x => x.Name == quizResult.Title && x.Level == quizResult.Level);
 
+                if(specification == null)
+                {
+                    return BadRequest("Could not find specification");
+                }
+
                 var therapists = _context.TherapistSpecifications
                     .AsQueryable()
                     .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
-                    .Where(x => x.SpecificationId == specification.SpecificationId)
+                    .Where(x => x.SpecificationId == specification.SpecificationId && x.Therapist.Status == true)
                     .GroupBy(x => x.SpecificationId)
                     .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist));
 
@@ -81,6 +93,7 @@ namespace SWP391.Service
                 var response = new MemberAnswerResponse
                 {
                     QuizResult = quizResult,
+                    UserScore = total + "/" + maxScore,
                     Therapists = therapists.TryGetValue(specification.SpecificationId, out var therapistsList) ? therapistsList : new List<Therapist>()
                 };
 

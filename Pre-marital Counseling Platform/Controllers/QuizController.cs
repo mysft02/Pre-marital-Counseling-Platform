@@ -52,5 +52,12 @@ namespace SWP391.Controllers
 
             return await _quizService.HandleUpdateQuiz(quizUpdateDTO, userId);
         }
+
+        [HttpPost("Disable_Quiz")]
+        public async Task<IActionResult> DisableQuiz([FromBody] Guid id)
+        {
+
+            return await _quizService.HandleDisableQuiz(id);
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using SWP391.Domain;
 
 namespace SWP391.DTO
 {
@@ -8,12 +7,10 @@ namespace SWP391.DTO
         public Guid CategoryId { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public List<QuizResultCreateDTO> QuizResults { get; set; } 
     }
 
     public class QuizResultCreateDTO
     {
-        public Guid QuizId { get; set; }
         public decimal Score { get; set; }
         public int Level { get; set; }
         public string Title { get; set; }
@@ -34,8 +31,8 @@ namespace SWP391.DTO
     {
         public QuizResultProfile()
         {
-            CreateMap<QuizResultCreateDTO, QuizResult>().ReverseMap();
-            CreateMap<QuizResult, QuizResultDTO>().ReverseMap();
+            CreateMap<QuizResultCreateDTO, SWP391.Domain.QuizResult>().ReverseMap();
+            CreateMap<SWP391.Domain.QuizResult, QuizResultDTO>().ReverseMap();
         }
     }
 }

@@ -111,6 +111,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ISpecificationService, SpecificationService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<ICertificateService, CertificateService>();
+builder.Services.AddScoped<IWithdrawService, WithdrawService>();
+builder.Services.AddScoped<IQuizResultService, QuizResultService>();
 
 
 

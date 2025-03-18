@@ -52,6 +52,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .ToList();
 
@@ -78,6 +79,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.BookingId == id);
 
@@ -104,6 +106,7 @@ namespace SWP391.Service
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.MemberId == id)
                     .ToList();
@@ -125,12 +128,13 @@ namespace SWP391.Service
                     {
                         BookingId = x.BookingId,
                         MemberId = x.MemberId,
-                         TherapistId = x.TherapistId,
+                        TherapistId = x.TherapistId,
                         ScheduleId = x.ScheduleId,
                         Status = x.Status,
                         Feedback = x.Feedback,
                         Schedule = x.Schedule,
                         Therapist = x.Therapist,
+                        MeetUrl = x.Therapist.MeetUrl
                     })
                     .Where(x => x.TherapistId == id)
                     .ToList();
@@ -145,7 +149,7 @@ namespace SWP391.Service
             try
             {
                 var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.ScheduleId);
-                if(slot.IsAvailable == false)
+                if(slot.Status != ScheduleStatusEnum.Available)
                 {
                     return BadRequest("Slot is not available!");
                 }
@@ -181,7 +185,7 @@ namespace SWP391.Service
 
                 _context.Bookings.Add(bookingMapped);
 
-                slot.IsAvailable = false;
+                slot.Status = ScheduleStatusEnum.Booked;
                 _context.Schedules.Update(slot);
 
                 var transaction = new TransactionCreateDTO
@@ -286,7 +290,7 @@ namespace SWP391.Service
                 }
 
                 var slot = booking.Schedule;
-                slot.IsAvailable = true;
+                slot.Status = ScheduleStatusEnum.Available;
                 _context.Schedules.Update(slot);
 
                 BookingReturnDTO bookingReturn = new BookingReturnDTO
@@ -341,7 +345,7 @@ namespace SWP391.Service
 
                 var transaction = new TransactionDTO
                 {
-                    Amount = +booking.Fee,
+                    Amount = (booking.Fee * 75 / 100),
                     Description = "Finish counseling",
                 };
 
@@ -354,8 +358,25 @@ namespace SWP391.Service
                 _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
-                wallet.Balance += booking.Fee;
+                wallet.Balance += (booking.Fee * 75 / 100);
                 _context.Wallets.Update(wallet);
+
+                var adWallet = _context.Wallets.FirstOrDefault(c => c.UserId.ToString() == userId);
+                adWallet.Balance += (booking.Fee * 25 / 100);
+                _context.Wallets.Update(adWallet);
+
+                var adTransaction = new TransactionCreateDTO
+                {
+                    Amount = +booking.Fee * 25 / 100,
+                    Description = "Finish counseling",
+                };
+
+                var adTransMapped = _mapper.Map<Transaction>(adTransaction);
+                adTransMapped.CreatedBy = Guid.Parse(userId);
+                adTransMapped.UpdatedAt = DateTime.Now;
+                adTransMapped.UpdatedBy = Guid.Parse(userId);
+                adTransMapped.CreatedAt = DateTime.Now;
+                _context.Transactions.Add(adTransMapped);
 
                 if (_context.SaveChanges() > 0)
                 {

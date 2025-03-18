@@ -39,6 +39,7 @@ namespace SWP391.Service
                         QuestionContent = x.QuestionContent,
                         QuestionStatus = x.Status
                     })
+                    .Where(x => x.QuestionStatus == QuestionStatusEnum.ACTIVE)
                     .ToList();
 
                 return Ok(questions);
@@ -58,7 +59,7 @@ namespace SWP391.Service
                         QuestionContent = x.QuestionContent,
                         QuestionStatus = x.Status
                     })
-                    .Where(x => x.QuestionId == id);
+                    .Where(x => x.QuestionId == id && x.QuestionStatus == QuestionStatusEnum.ACTIVE);
 
                 return Ok(question);
             }
@@ -85,6 +86,10 @@ namespace SWP391.Service
 
                 foreach (var answer in questionCreateDTO.Answers)
                 {
+                    if(answer.Score > 20)
+                    {
+                        return BadRequest("Score must be less than 20");
+                    }
                     var answerMapped = _mapper.Map<Answer>(answer);
                     answerMapped.QuestionId = questionMapped.QuestionId;
                     answerMapped.CreatedBy = Guid.Parse(userId);

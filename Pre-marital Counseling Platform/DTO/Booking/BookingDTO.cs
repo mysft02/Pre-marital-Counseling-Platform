@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using SWP391.Domain;
 using SWP391.Infrastructure.DataEnum;
+using SWP391.Migrations;
 
 namespace SWP391.DTO
 {
@@ -14,6 +15,7 @@ namespace SWP391.DTO
         public Schedule Schedule { get; set; }
         public Therapist Therapist { get; set; }
         public BookingStatusEnum Status { get; set; }
+        public string MeetUrl { get; set; }
     }
 
     public class BookingProfile : Profile

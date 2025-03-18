@@ -16,6 +16,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleGetQuizById(Guid id);
         Task<IActionResult> HandleCreateQuiz(QuizCreateDTO quizCreateDTO, string userId);
         Task<IActionResult> HandleUpdateQuiz(QuizUpdateDTO quizUpdateDTO, string userId);
+        Task<IActionResult> HandleDisableQuiz(Guid id);
     }
 
     public class QuizService : ControllerBase, IQuizService
@@ -35,8 +36,9 @@ namespace SWP391.Service
             {
                 var Quizzes = _context.Quizes
                     .Include(x => x.Category)
-                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.Questions.Where(x => x.Status == QuestionStatusEnum.ACTIVE)).ThenInclude(x => x.Answers)
                     .Include(x => x.QuizResults)
+                    .Where(x => x.QuizStatus == QuizStatusEnum.ACTIVE)
                     .ToList();
 
                 return Ok(Quizzes);
@@ -51,7 +53,7 @@ namespace SWP391.Service
                 var Quiz = _context.Quizes
                     .Where(x => x.QuizId == id)
                     .Include(x => x.Category)
-                    .Include(x => x.Questions).ThenInclude(x => x.Answers)
+                    .Include(x => x.Questions.Where(x => x.Status == QuestionStatusEnum.ACTIVE)).ThenInclude(x => x.Answers)
                     .Include(x => x.QuizResults)
                     .FirstOrDefault();
 
@@ -77,8 +79,8 @@ namespace SWP391.Service
                 quizMapped.UpdatedAt = DateTime.Now;
                 quizMapped.UpdatedBy = Guid.Parse(userId);
                 quizMapped.QuizStatus = QuizStatusEnum.ACTIVE;
-
                 _context.Quizes.Add(quizMapped);
+                
                 var result = _context.SaveChanges();
                 if(result > 0)
                 {
@@ -107,6 +109,27 @@ namespace SWP391.Service
 
                 _context.Quizes.Update(quiz);
                 if(_context.SaveChanges() > 0)
+                {
+                    return Ok(quiz);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleDisableQuiz(Guid id)
+        {
+            try
+            {
+                var quiz = _context.Quizes.FirstOrDefault(x => x.QuizId == id);
+
+                quiz.QuizStatus = QuizStatusEnum.INACTIVE;
+
+                _context.Quizes.Update(quiz);
+                if (_context.SaveChanges() > 0)
                 {
                     return Ok(quiz);
                 }

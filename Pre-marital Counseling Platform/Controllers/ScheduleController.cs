@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Service;
-using System.Security.Claims;
 
 namespace SWP391.Controllers
 {

@@ -51,7 +51,7 @@ namespace SWP391.Service
 
                 var user = _context.Users.FirstOrDefault(c => c.UserId.ToString() == userId);
 
-                var vnpReturnUrl = url;
+                var vnpReturnUrl = "https://wed-wise-mu.vercel.app/home/wallet";
 
                 _vnPayRepo.AddRequestData("vnp_Version", _vnpVersion);
                 _vnPayRepo.AddRequestData("vnp_Command", _vnpCommand);
