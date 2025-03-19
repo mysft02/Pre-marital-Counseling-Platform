@@ -26,6 +26,7 @@ public class PmcsDbContext : IdentityDbContext
     public new DbSet<MemberAnswer> MemberAnswers { get; set; }
     public new DbSet<MoneyWithdraw> MoneyWithdraws { get; set; }
     public new DbSet<Certificate> Certificates { get; set; }
+    public new DbSet<Blog> Blogs { get; set; }
 
     private readonly string COLLATION = "SQL_Latin1_General_CP1_CI_AI";
 
@@ -257,6 +258,21 @@ public class PmcsDbContext : IdentityDbContext
                 v => v.ToString(),
                 v => (WithdrawStatusEnum)Enum.Parse(typeof(WithdrawStatusEnum), v));
             entity.Property(u => u.Money).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
+            entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
+            entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(e => e.UpdatedUser).WithMany().HasForeignKey(e => e.UpdatedBy).OnDelete(DeleteBehavior.NoAction);
+        });
+
+        modelBuilder.Entity<Blog>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
+            entity.Property(u => u.Content).IsRequired().HasMaxLength(200);
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (BlogStatusEnum)Enum.Parse(typeof(BlogStatusEnum), v));
+            entity.Property(u => u.Picture).IsRequired();
             entity.Property(e => e.CreatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.Property(e => e.UpdatedAt).IsRequired().HasDefaultValueSql("GETDATE()");
             entity.HasOne(e => e.CreatedUser).WithMany().HasForeignKey(e => e.CreatedBy).OnDelete(DeleteBehavior.NoAction);
