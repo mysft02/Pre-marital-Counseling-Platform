@@ -91,10 +91,10 @@ namespace SWP391.Service
         {
             try
             {
-                var list = _context.Blogs.Where(x => x.Status == BlogStatusEnum.Active).ToList();
+                var list = _context.Blogs.ToList();
                 if(list.Count == 0)
                 {
-                    return NotFound();
+                    return NotFound("Blogs is empty");
                 }
                 return Ok(list);
             }
@@ -111,7 +111,7 @@ namespace SWP391.Service
                 var blog = _context.Blogs.Where(x => x.Status == BlogStatusEnum.Active && x.Id == id).FirstOrDefault();
                 if(blog == null)
                 {
-                    return NotFound();
+                    return NotFound("Cannot find any Blog with this ID");
                 }
                 return Ok(blog);
             }
