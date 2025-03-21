@@ -9,6 +9,7 @@ namespace SWP391.DTO
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public string Body { get; set; }
         public BlogStatusEnum Status { get; set; }
         public string Picture { get; set; }
     }
@@ -18,6 +19,7 @@ namespace SWP391.DTO
         public Guid Id { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
+        public string Body { get; set; }
         public BlogStatusEnum Status { get; set; }
         public string Picture { get; set; }
     }
@@ -26,6 +28,7 @@ namespace SWP391.DTO
     {
         public string Title { get; set; }
         public string Content { get; set; }
+        public string Body { get; set; }
         public string Picture { get; set; }
     }
 

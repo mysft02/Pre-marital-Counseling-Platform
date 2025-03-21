@@ -273,6 +273,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
             entity.Property(u => u.Content).IsRequired();
+            entity.Property(u => u.Body).IsRequired();
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (BlogStatusEnum)Enum.Parse(typeof(BlogStatusEnum), v));
