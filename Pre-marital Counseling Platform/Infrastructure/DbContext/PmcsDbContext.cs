@@ -105,6 +105,7 @@ public class PmcsDbContext : IdentityDbContext
             entity.HasOne(u => u.Therapist).WithMany().HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Schedule).WithMany(e => e.Bookings).HasForeignKey(u => u.ScheduleId).OnDelete(DeleteBehavior.NoAction);
             entity.Property(u => u.Fee).HasColumnType("decimal(18,2)").HasDefaultValue(0);
+            entity.Property(u => u.Commission).HasColumnType("decimal(18,2)").HasDefaultValue(0);
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (BookingStatusEnum)Enum.Parse(typeof(BookingStatusEnum), v));
@@ -138,6 +139,9 @@ public class PmcsDbContext : IdentityDbContext
         modelBuilder.Entity<TherapistSpecification>(entity =>
         {
             entity.HasKey(u => new {u.TherapistId, u.SpecificationId});
+            entity.Property(e => e.Status).IsRequired().HasConversion(
+                v => v.ToString(),
+                v => (SpecificationStatusEnum)Enum.Parse(typeof(SpecificationStatusEnum), v));
             entity.HasOne(u => u.Therapist).WithMany(c => c.Specialty).HasForeignKey(u => u.TherapistId).OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(u => u.Specification).WithMany(c => c.Therapists).HasForeignKey(u => u.SpecificationId).OnDelete(DeleteBehavior.NoAction);
         });
@@ -268,7 +272,7 @@ public class PmcsDbContext : IdentityDbContext
         {
             entity.HasKey(u => u.Id);
             entity.Property(u => u.Title).IsRequired().HasMaxLength(100);
-            entity.Property(u => u.Content).IsRequired().HasMaxLength(200);
+            entity.Property(u => u.Content).IsRequired();
             entity.Property(e => e.Status).IsRequired().HasConversion(
                 v => v.ToString(),
                 v => (BlogStatusEnum)Enum.Parse(typeof(BlogStatusEnum), v));

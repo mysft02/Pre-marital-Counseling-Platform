@@ -6,6 +6,7 @@ using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
+using static SWP391.Service.BookingService;
 
 namespace SWP391.Service
 {
@@ -20,6 +21,8 @@ namespace SWP391.Service
         Task<IActionResult> HandleGetBookingByUserId(Guid userId);
         Task<IActionResult> HandleGetBookingByTherapistId(Guid userId);
         Task<IActionResult> HandleUpdateBooking(BookingUpdateDTO bookingUpdateDTO, string? userId);
+        Task<IActionResult> GetCommission();
+        Task<IActionResult> UpdateCommission(CommissionDTO commissionDTO);
     }
 
     public class BookingService : ControllerBase, IBookingService
@@ -81,7 +84,7 @@ namespace SWP391.Service
                         Therapist = x.Therapist,
                         MeetUrl = x.Therapist.MeetUrl
                     })
-                    .Where(x => x.BookingId == id);
+                    .Where(x => x.BookingId == id && x.Status != BookingStatusEnum.TEST);
 
                 return Ok(booking);
             }
@@ -108,7 +111,7 @@ namespace SWP391.Service
                         Therapist = x.Therapist,
                         MeetUrl = x.Therapist.MeetUrl
                     })
-                    .Where(x => x.MemberId == id)
+                    .Where(x => x.MemberId == id && x.Status != BookingStatusEnum.TEST)
                     .ToList();
 
                 return Ok(bookings);
@@ -136,7 +139,7 @@ namespace SWP391.Service
                         Therapist = x.Therapist,
                         MeetUrl = x.Therapist.MeetUrl
                     })
-                    .Where(x => x.TherapistId == id)
+                    .Where(x => x.TherapistId == id && x.Status != BookingStatusEnum.TEST)
                     .ToList();
 
                 return Ok(bookings);
@@ -175,6 +178,8 @@ namespace SWP391.Service
                     return BadRequest("Slot is not available!");
                 }
 
+                var test = bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.TEST);
+
                 var bookingMapped = _mapper.Map<Booking>(bookingCreateDTO);
                 bookingMapped.CreatedAt = DateTime.Now;
                 bookingMapped.UpdatedAt = DateTime.Now;
@@ -182,6 +187,7 @@ namespace SWP391.Service
                 bookingMapped.UpdatedBy = Guid.Parse(userId);
                 bookingMapped.Status = BookingStatusEnum.PENDING;
                 bookingMapped.Fee = therapist.ConsultationFee;
+                bookingMapped.Commission = test.Commission;
 
                 _context.Bookings.Add(bookingMapped);
 
@@ -358,7 +364,7 @@ namespace SWP391.Service
                 _context.Transactions.Add(transactionMapped);
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == booking.TherapistId);
-                wallet.Balance += (booking.Fee * 75 / 100);
+                wallet.Balance += ((booking.Fee * (100 - booking.Commission)) / 100);
                 _context.Wallets.Update(wallet);
 
                 var adWallet = _context.Wallets.FirstOrDefault(c => c.UserId.ToString() == userId);
@@ -367,7 +373,7 @@ namespace SWP391.Service
 
                 var adTransaction = new TransactionCreateDTO
                 {
-                    Amount = +booking.Fee * 25 / 100,
+                    Amount = +(booking.Fee * booking.Commission) / 100,
                     Description = "Finish counseling",
                 };
 
@@ -420,6 +426,43 @@ namespace SWP391.Service
                 }
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> GetCommission()
+        {
+            var booking = _context.Bookings.FirstOrDefault(x => x.Status == BookingStatusEnum.TEST);
+            var com = booking.Commission;
+
+            var result = new CommissionDTO
+            {
+                Commission = com,
+            };
+
+            return Ok(result);
+        }
+
+        public async Task<IActionResult> UpdateCommission(CommissionDTO commissionDTO)
+        {
+            var booking = _context.Bookings.FirstOrDefault(x => x.Status == BookingStatusEnum.TEST);
+            if(commissionDTO.Commission < 0 || commissionDTO.Commission > 100)
+            {
+                return BadRequest("Commission must be between 0 and 100");
+            }
+            booking.Commission = commissionDTO.Commission;
+            _context.Bookings.Update(booking);
+            if (_context.SaveChanges() > 0)
+            {
+                return Ok(new CommissionDTO { Commission = commissionDTO.Commission });
+            }
+            else
+            {
+                return BadRequest("Update commission failed");
+            }
+        }
+
+        public class CommissionDTO
+        {
+            public decimal Commission { get; set; }
         }
     }
 }

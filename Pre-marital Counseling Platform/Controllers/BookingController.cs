@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
 using SWP391.Service;
 using System.Security.Claims;
+using static SWP391.Service.BookingService;
 
 namespace SWP391.Controllers
 {
@@ -45,6 +46,20 @@ namespace SWP391.Controllers
         {
 
             return await _bookingService.HandleGetBookingByTherapistId(id);
+        }
+
+        [HttpGet("Get_Commission")]
+        public async Task<IActionResult> GetCommission()
+        {
+
+            return await _bookingService.GetCommission();
+        }
+
+        [HttpPost("Update_Commission")]
+        public async Task<IActionResult> UpdateCommission(CommissionDTO commissionDTO)
+        {
+
+            return await _bookingService.UpdateCommission(commissionDTO);
         }
 
         [Authorize]

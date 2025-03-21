@@ -33,6 +33,7 @@ namespace SWP391.Service
                 foreach (var item in dto)
                 {
                     var quizResult = _mapper.Map<QuizResult>(item);
+                    quizResult.Score = quizResult.Level * 25;
                     quizResult.CreatedBy = Guid.Parse(userId);
                     quizResult.CreatedAt = DateTime.Now;
                     quizResult.UpdatedBy = Guid.Parse(userId);
@@ -104,6 +105,7 @@ namespace SWP391.Service
             try
             {
                 var quizResult = _mapper.Map<QuizResult>(dto);
+                quizResult.Score = quizResult.Level * 25;
                 quizResult.UpdatedBy = Guid.Parse(userId);
                 quizResult.UpdatedAt = DateTime.Now;
                 _context.QuizResults.Update(quizResult);

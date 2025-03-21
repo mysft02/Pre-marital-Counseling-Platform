@@ -12,6 +12,14 @@ namespace SWP391.DTO
         public List<Therapist> Therapists { get; set; } 
     }
 
+    public class SpecificationResponseListDTO
+    {
+        public Guid SpecificationId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<Therapist> Therapists { get; set; }
+    }
+
     public class SpecificationCreateDTO
     {
         public string Name { get; set; }
@@ -44,7 +52,7 @@ namespace SWP391.DTO
     {
         public SpecificationProfile()
         {
-            CreateMap<Specification, SpecificationDTO>().ReverseMap();
+            CreateMap<Specification, SpecificationResponseListDTO>().ReverseMap();
             CreateMap<SpecificationCreateDTO, Specification>().ReverseMap();
             CreateMap<SpecificationUpdateDTO, Specification>().ReverseMap();
         }

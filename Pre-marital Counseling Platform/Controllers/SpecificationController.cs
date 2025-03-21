@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
 using SWP391.Service;
+using static SWP391.Service.SpecificationService;
 
 namespace SWP391.Controllers
 {
@@ -25,11 +26,24 @@ namespace SWP391.Controllers
             return await _specificationService.HandleGetAllSpecifications();
         }
 
+        [HttpGet("Get_All_Specification_With_Level")]
+        public async Task<IActionResult> GetAllSpecificationsWithLevel()
+        {
+
+            return await _specificationService.HandleGetAllSpecificationsWithLevel();
+        }
+
         [HttpGet("Get_Specification_By_Id")]
         public async Task<IActionResult> GetSpecificationById([FromQuery] Guid id)
         {
 
             return await _specificationService.HandleGetSpecificationById(id);
+        }
+
+        [HttpGet("Get_Specification_By_Therapist_Id")]
+        public async Task<IActionResult> GetSpecificationByTherapistId([FromQuery] Guid id)
+        {
+            return await _specificationService.HandleGetSpecificationByTherapistId(id);
         }
 
         [HttpPost("Create_Specification")]
@@ -51,6 +65,13 @@ namespace SWP391.Controllers
         {
 
             return await _specificationService.HandleUpdateTherapistSpecification(therapistSpecificationUpdateDTO);
+        }
+
+        [HttpPost("Update_Therapist_Specification_Status")]
+        public async Task<IActionResult> UpdateTherapistSpecificationStatus([FromBody] UpdateTheSpeDTO updateTheSpeDTO)
+        {
+
+            return await _specificationService.HandleUpdateTheSpeStatus(updateTheSpeDTO);
         }
     }
 }

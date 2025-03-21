@@ -93,6 +93,7 @@ namespace SWP391.Service
                 var response = new MemberAnswerResponse
                 {
                     QuizResult = quizResult,
+                    MemberResult = memberResultMapper,
                     UserScore = total + "/" + maxScore,
                     Therapists = therapists.TryGetValue(specification.SpecificationId, out var therapistsList) ? therapistsList : new List<Therapist>()
                 };
