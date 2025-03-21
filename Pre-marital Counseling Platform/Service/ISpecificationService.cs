@@ -38,14 +38,13 @@ namespace SWP391.Service
             {
                 var specifications = _context.TherapistSpecifications
                     .AsQueryable()
-                    .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
+                    .Include(x => x.Therapist)/*.ThenInclude(xc => xc.Schedules)*/
                     .Where(x => x.Therapist.Status == true)
                     .GroupBy(x => x.Specification.Name)
-                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist))
                     .Select(c => new TestResponseDTO
                     {
                         SpecificationName = c.Key,
-                        Therapists = c.Value.ToList()
+                        Therapists = c.Select(m => m.Therapist).Distinct().ToList()
                     })
                     .ToList();
 

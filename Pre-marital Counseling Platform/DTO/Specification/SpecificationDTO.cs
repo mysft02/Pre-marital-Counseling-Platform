@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SWP391.Domain;
+using SWP391.Infrastructure.DataEnum;
 
 namespace SWP391.DTO
 {
@@ -46,6 +47,7 @@ namespace SWP391.DTO
         public string Name { get; set; }
         public string Description { get; set; }
         public int Level { get; set; }
+        public SpecificationStatusEnum Status { get; set; }
     }
 
     public class SpecificationProfile : Profile
