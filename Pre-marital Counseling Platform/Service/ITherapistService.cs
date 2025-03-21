@@ -54,7 +54,8 @@ namespace SWP391.Service
                         {
                             Name = n.Specification.Name,
                             Description = n.Specification.Description,
-                            Level = n.Specification.Level
+                            Level = n.Specification.Level,
+                            Status = n.Status,
                         }).ToList()
                     })
                     .ToList();
