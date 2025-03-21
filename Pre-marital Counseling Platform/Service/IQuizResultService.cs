@@ -32,13 +32,24 @@ namespace SWP391.Service
             {
                 foreach (var item in dto)
                 {
-                    var quizResult = _mapper.Map<QuizResult>(item);
-                    quizResult.Score = quizResult.Level * 25;
-                    quizResult.CreatedBy = Guid.Parse(userId);
-                    quizResult.CreatedAt = DateTime.Now;
-                    quizResult.UpdatedBy = Guid.Parse(userId);
-                    quizResult.UpdatedAt = DateTime.Now;
-                    _context.Add(quizResult);
+                    var duplicate = _context.QuizResults
+                        .FirstOrDefault(x => x.QuizId == item.QuizId && x.Level == item.Level
+                                             && x.Title == item.Title);
+
+                    if(duplicate == null)
+                    {
+                        var quizResult = _mapper.Map<QuizResult>(item);
+                        quizResult.Score = quizResult.Level * 25;
+                        quizResult.CreatedBy = Guid.Parse(userId);
+                        quizResult.CreatedAt = DateTime.Now;
+                        quizResult.UpdatedBy = Guid.Parse(userId);
+                        quizResult.UpdatedAt = DateTime.Now;
+                        _context.Add(quizResult);
+                    }
+                    else
+                    {
+                        return BadRequest("Duplicate data" + item.Title + " " + item.Level);
+                    }
                 }
 
                 var rs = await _context.SaveChangesAsync();

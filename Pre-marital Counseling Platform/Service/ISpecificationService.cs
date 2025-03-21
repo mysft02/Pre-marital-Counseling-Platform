@@ -41,11 +41,23 @@ namespace SWP391.Service
                     .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
                     .Where(x => x.Therapist.Status == true)
                     .GroupBy(x => x.Specification.Name)
-                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist));
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist))
+                    .Select(c => new TestResponseDTO
+                    {
+                        SpecificationName = c.Key,
+                        Therapists = c.Value.ToList()
+                    })
+                    .ToList();
 
                 return Ok(specifications);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public class TestResponseDTO
+        {
+            public string SpecificationName { get; set; }
+            public List<Therapist> Therapists { get; set; }
         }
 
         public async Task<IActionResult> HandleGetAllSpecificationsWithLevel()
