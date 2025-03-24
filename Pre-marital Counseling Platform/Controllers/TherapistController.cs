@@ -40,6 +40,12 @@ namespace SWP391.Controllers
             return await _therapistService.HandleGetTherapistBySpecificationId(id);
         }
 
+        [HttpGet("Get_Therapist_By_Rating")]
+        public async Task<IActionResult> GetTherapistByRating([FromQuery] decimal rating)
+        {
+            return await _therapistService.GetTherapistByRating(rating);
+        }
+
         [HttpGet("Get_Therapist_By_Name")]
         public async Task<IActionResult> GetTherapistByName([FromQuery] string name)
         {
