@@ -53,13 +53,12 @@ namespace SWP391.Service
                             Status = s.Status,
                         }).ToList(),
                         Specifications = x.Specialty
-                        .Where(m => m.Status == SpecificationStatusEnum.Active)
                         .Select(n => new SpecificationResponseDTO
                         {
                             Name = n.Specification.Name,
                             Description = n.Specification.Description,
                             Level = n.Specification.Level,
-                            Status = n.Status,
+                            Status = n.Status
                         }).ToList()
                     })
                     .ToList();
