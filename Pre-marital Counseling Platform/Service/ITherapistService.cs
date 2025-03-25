@@ -14,15 +14,18 @@ namespace SWP391.Service
         Task<IActionResult> HandleGetTherapistByName(string name);
         Task<IActionResult> HandleGetTherapistBySpecificationId(Guid id);
         Task<IActionResult> HandleUpdateTherapist(TherapistUpdateDTO therapistUpdateDTO, string? userId);
+        Task<IActionResult> GetTherapistByRating(decimal rating);
     }
 
     public class TherapistService : ControllerBase, ITherapistService
     {
         private readonly PmcsDbContext _context;
+        private readonly IBookingService _bookingService;
 
-        public TherapistService(PmcsDbContext context)
+        public TherapistService(PmcsDbContext context, IBookingService bookingService)
         {
             _context = context;
+            _bookingService = bookingService;
         }
 
         public async Task<IActionResult> HandleGetAllTherapists()
@@ -213,6 +216,43 @@ namespace SWP391.Service
                 return Ok(therapists);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> GetTherapistByRating(decimal rating)
+        {
+            try
+            {
+                var feedbackList = _context.Feedbacks.Where(x => x.Rating == rating).ToList();
+                if(feedbackList == null)
+                {
+                    return NotFound("Feedback is null");
+                }
+
+                List<Guid> bookingIdList = feedbackList.Select(x => x.BookingId).ToList();
+                List<Therapist> therapistList = new List<Therapist>();
+
+                foreach (var item in bookingIdList)
+                {
+                    var booking = await _context.Bookings.Include(b => b.Therapist).FirstOrDefaultAsync(x => x.BookingId == item);
+                    if (booking != null && booking.Therapist != null)
+                    {
+                        therapistList.Add(booking.Therapist);
+                    }
+                }
+
+                if(therapistList != null)
+                {
+                    return Ok(therapistList);
+                }
+                else
+                {
+                    return NotFound("Not found therapist in this rating");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
