@@ -113,7 +113,7 @@ namespace SWP391.Service
                 var specification = _context.TherapistSpecifications
                     .Include(c => c.Specification)
                     .Include(c => c.Therapist)
-                    .Where(x => x.Therapist.TherapistId == id)
+                    .Where(x => x.Therapist.TherapistId == id && x.Status == SpecificationStatusEnum.Active)
                     .Select(x => new TempResponseDTO
                     {
                         SpecificationId = x.SpecificationId,
