@@ -46,6 +46,18 @@ namespace SWP391.Controllers
             return await _specificationService.HandleGetSpecificationByTherapistId(id);
         }
 
+        [HttpGet("Get_Therapist_Specification_By_Therapist_Id")]
+        public async Task<IActionResult> GetSpeTheByTherapistId([FromQuery] Guid id)
+        {
+            return await _specificationService.HandleGetSpeTheByTherapistId(id);
+        }
+
+        [HttpGet("Get_All_Therapist_Specification")]
+        public async Task<IActionResult> GetAllSpeThe()
+        {
+            return await _specificationService.HandleGetAllSpeThe();
+        }
+
         [HttpPost("Create_Specification")]
         public async Task<IActionResult> CreateSpecification([FromBody] SpecificationCreateDTO specificationCreateDTO)
         {

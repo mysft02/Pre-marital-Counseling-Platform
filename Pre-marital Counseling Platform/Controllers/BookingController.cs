@@ -84,12 +84,12 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Cancel_Booking")]
-        public async Task<IActionResult> CancelBooking([FromQuery] Guid id)
+        public async Task<IActionResult> CancelBooking([FromBody] BookingCancelDTO bookingCancelDTO)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
 
-            return await _bookingService.HandleCancelBooking(id, userId);
+            return await _bookingService.HandleCancelBooking(bookingCancelDTO, userId);
         }
 
         [Authorize]

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
@@ -31,7 +32,8 @@ namespace SWP391.Service
         {
             try
             {
-                var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
+                var bookingCheck = _context.Bookings
+                    .FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
 
                 if(bookingCheck == null) { return BadRequest("Booking not finished"); }
 
@@ -68,10 +70,13 @@ namespace SWP391.Service
         {
             try
             {
-                List<FeedbackDTO> feedbacks = new List<FeedbackDTO>();
+                List<FeedBackReturnDTO> feedbacks = new List<FeedBackReturnDTO>();
                 feedbacks = _context.Feedbacks
-                    .Select(x => new FeedbackDTO
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
                     {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
                         FeedbackId = x.FeedbackId,
                         FeedbackTitle = x.FeedbackTitle,
                         FeedbackContent = x.FeedbackContent,
@@ -91,8 +96,11 @@ namespace SWP391.Service
             try
             {
                 var feedback = _context.Feedbacks
-                    .Select(x => new FeedbackDTO
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
                     {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
                         FeedbackId = x.FeedbackId,
                         FeedbackTitle = x.FeedbackTitle,
                         FeedbackContent = x.FeedbackContent,
@@ -113,8 +121,11 @@ namespace SWP391.Service
             {
                 var feedback = _context.Feedbacks
                     .Where(c => c.Booking.TherapistId == id)
-                    .Select(x => new FeedbackDTO
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
                     {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
                         FeedbackId = x.FeedbackId,
                         FeedbackTitle = x.FeedbackTitle,
                         FeedbackContent = x.FeedbackContent,

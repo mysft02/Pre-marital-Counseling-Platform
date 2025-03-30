@@ -254,5 +254,15 @@ namespace SWP391.Service
                 return BadRequest(ex.Message);
             }
         }
+
+        public Dictionary<Therapist, decimal> GetTherapistRating()
+        {
+            var fbQuery = _context.Feedbacks.AsQueryable();
+            var result = fbQuery
+                .Include(f => f.Booking).ThenInclude(fc => fc.Therapist)
+                .GroupBy(f => f.Booking.Therapist)
+                .ToDictionary(f => f.Key, f => f.Average(f => f.Rating));
+            return result;
+        }
     }
 }

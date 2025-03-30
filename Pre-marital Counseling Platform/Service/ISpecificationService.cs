@@ -19,6 +19,8 @@ namespace SWP391.Service
         Task<IActionResult> HandleUpdateSpecification(SpecificationUpdateDTO specificationUpdateDTO);
         Task<IActionResult> HandleUpdateTherapistSpecification(TherapistSpecificationUpdateDTO therapistSpecificationUpdateDTO);
         Task<IActionResult> HandleGetSpecificationByTherapistId(Guid id);
+        Task<IActionResult> HandleGetSpeTheByTherapistId(Guid id);
+        Task<IActionResult> HandleGetAllSpeThe();
     }
 
     public class SpecificationService : ControllerBase, ISpecificationService
@@ -121,6 +123,35 @@ namespace SWP391.Service
                         Description = x.Specification.Description,
                         Level = x.Specification.Level
                     })
+                    .ToList();
+
+                return Ok(specification);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetSpeTheByTherapistId(Guid id)
+        {
+            try
+            {
+                var specification = _context.TherapistSpecifications
+                    .Include(c => c.Specification)
+                    .Include(c => c.Therapist)
+                    .Where(x => x.Therapist.TherapistId == id)
+                    .ToList();
+
+                return Ok(specification);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetAllSpeThe()
+        {
+            try
+            {
+                var specification = _context.TherapistSpecifications
+                    .Include(c => c.Specification)
+                    .Include(c => c.Therapist)
                     .ToList();
 
                 return Ok(specification);
