@@ -116,7 +116,8 @@ namespace SWP391.Service
         {
             try
             {
-                var quizResult = _mapper.Map<QuizResult>(dto);
+                var quizResult = _context.QuizResults
+                    .FirstOrDefault(x => x.QuizResultId == dto.QuizResultId);
                 quizResult.Score = quizResult.Level * 25;
                 quizResult.UpdatedBy = Guid.Parse(userId);
                 quizResult.UpdatedAt = DateTime.Now;

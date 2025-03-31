@@ -260,5 +260,15 @@ namespace SWP391.Service
                 .ToDictionary(key => key.Key, value => value.Average(x => x.Rating));
             return rs;
         }
+
+        public Dictionary<Therapist, decimal> GetTherapistRating()
+        {
+            var fbQuery = _context.Feedbacks.AsQueryable();
+            var result = fbQuery
+                .Include(f => f.Booking).ThenInclude(fc => fc.Therapist)
+                .GroupBy(f => f.Booking.Therapist)
+                .ToDictionary(f => f.Key, f => f.Average(f => f.Rating));
+            return result;
+        }
     }
 }

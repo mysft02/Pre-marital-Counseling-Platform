@@ -12,7 +12,7 @@ namespace SWP391.Service
 {
     public interface IBookingService
     {
-        Task<IActionResult> HandleCancelBooking(Guid id, string? userId);
+        Task<IActionResult> HandleCancelBooking(BookingCancelDTO bookingCancelDTO, string? userId);
         Task<IActionResult> HandleCloseBooking(Guid id, string? userId);
         Task<IActionResult> HandleFinishBooking(Guid id, string? userId);
         Task<IActionResult> HandleCreateBooking(BookingCreateDTO bookingCreateDTO, string? userId);
@@ -253,13 +253,13 @@ namespace SWP391.Service
             catch (Exception ex) { return BadRequest(ex.Message); }
         }
 
-        public async Task<IActionResult> HandleCancelBooking(Guid id, string? userId)
+        public async Task<IActionResult> HandleCancelBooking(BookingCancelDTO bookingCancelDTO, string? userId)
         {
             try
             {
                 var booking = _context.Bookings
                     .Include(e => e.Schedule)
-                    .FirstOrDefault(x => x.BookingId == id);
+                    .FirstOrDefault(x => x.BookingId == bookingCancelDTO.BookingId);
 
                 if (booking.Status != BookingStatusEnum.PENDING)
                 {
@@ -271,9 +271,7 @@ namespace SWP391.Service
                 booking.UpdatedBy = Guid.Parse(userId);
                 _context.Bookings.Update(booking);
 
-                var message = "No returned!";
-
-                if ((booking.Schedule.Date - DateTime.Now).TotalHours > 2 || userId == booking.TherapistId.ToString())
+                if (bookingCancelDTO.IsReturn == true)
                 {
                     var transaction = new TransactionDTO
                     {
@@ -287,7 +285,6 @@ namespace SWP391.Service
                     transactionMapped.UpdatedBy = Guid.Parse(userId);
                     transactionMapped.CreatedAt = DateTime.Now;
 
-                    message = "Returned!";
                     _context.Transactions.Add(transactionMapped);
 
                     var wallet = _context.Wallets.FirstOrDefault(e => e.UserId == booking.MemberId);
@@ -299,15 +296,9 @@ namespace SWP391.Service
                 slot.Status = ScheduleStatusEnum.Available;
                 _context.Schedules.Update(slot);
 
-                BookingReturnDTO bookingReturn = new BookingReturnDTO
-                {
-                    Message = message,
-                    Booking = booking
-                };
-
                 if (_context.SaveChanges() > 0)
                 {
-                    return Ok(bookingReturn);
+                    return Ok(booking);
                 }
                 else
                 {
