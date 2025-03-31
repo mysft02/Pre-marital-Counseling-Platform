@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
+using Ganss.Xss;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -114,6 +115,7 @@ builder.Services.AddScoped<ICertificateService, CertificateService>();
 builder.Services.AddScoped<IWithdrawService, WithdrawService>();
 builder.Services.AddScoped<IQuizResultService, QuizResultService>();
 builder.Services.AddScoped<IBlogService, BlogServie>();
+builder.Services.AddScoped<HtmlSanitizer>();
 
 
 
