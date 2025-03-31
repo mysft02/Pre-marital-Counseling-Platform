@@ -28,9 +28,9 @@ namespace SWP391.Controllers
             return await _service.GetBlogById(id);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpPost("Create_Blog")]
-        public async Task<IActionResult> CreateBlog([FromBody] CreateBlogDTO dto)
+        public async Task<IActionResult> CreateBlog([FromForm] CreateBlogDTO dto)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;

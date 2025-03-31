@@ -24,11 +24,13 @@ namespace SWP391.Service
 
         private readonly PmcsDbContext _context;
         private readonly IMapper _mapper;
+        private readonly HtmlSanitizer _sanitizer;
 
-        public BlogServie(PmcsDbContext context, IMapper mapper)
+        public BlogServie(PmcsDbContext context, IMapper mapper, HtmlSanitizer sanitizer)
         {
             _context = context;
             _mapper = mapper;
+            _sanitizer = sanitizer ?? new HtmlSanitizer();
         }
 
         public async Task<IActionResult> CreateBlog(CreateBlogDTO dto, string? userId)
@@ -52,11 +54,24 @@ namespace SWP391.Service
                 nBlog.CreatedAt = DateTime.Now;
                 nBlog.UpdatedBy = Guid.Parse(userId);
                 nBlog.UpdatedAt = DateTime.Now;
-                _context.Add(nBlog);
 
                 var sanitizer = new HtmlSanitizer();
-                nBlog.Body = sanitizer.Sanitize(dto.Body);
+                sanitizer.AllowedTags.Clear();
+                sanitizer.AllowedTags.Add("p");
+                sanitizer.AllowedTags.Add("ul");
+                sanitizer.AllowedTags.Add("ol");
+                sanitizer.AllowedTags.Add("li");
+                sanitizer.AllowedTags.Add("strong");
+                sanitizer.AllowedTags.Add("em");
+                sanitizer.AllowedTags.Add("img");
+                sanitizer.AllowedTags.Add("br");
+                sanitizer.AllowedAttributes.Add("src");
+                sanitizer.AllowedAttributes.Add("alt");
 
+                string processedBody = ConvertRawTextToHtml(dto.Body);
+                nBlog.Body = sanitizer.Sanitize(processedBody);
+
+                _context.Add(nBlog);
                 var rs = await _context.SaveChangesAsync();
                 if(rs > 0)
                 {
@@ -71,6 +86,18 @@ namespace SWP391.Service
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        private string ConvertRawTextToHtml(string rawText)
+        {
+            if (string.IsNullOrEmpty(rawText))
+                return rawText;
+
+            var paragraphs = rawText.Split(new[] { "\r\n\r\n", "\n\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Select(p => $"<p>{p.Trim().Replace("\r\n", "<br>").Replace("\n", "<br>")}</p>")
+                .ToArray();
+
+            return string.Join("", paragraphs);
         }
 
         public async Task<IActionResult> DeleteBlog(Guid id, string? userId)
@@ -167,5 +194,6 @@ namespace SWP391.Service
                 return BadRequest(ex.Message);
             }
         }
+
     }
 }
