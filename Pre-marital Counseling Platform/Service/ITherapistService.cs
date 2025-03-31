@@ -4,6 +4,7 @@ using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
+using SWP391.Migrations;
 
 namespace SWP391.Service
 {
@@ -222,37 +223,42 @@ namespace SWP391.Service
         {
             try
             {
-                var feedbackList = _context.Feedbacks.Where(x => x.Rating == rating).ToList();
-                if(feedbackList == null)
-                {
-                    return NotFound("Feedback is null");
-                }
+                var avgRatings = GetAvgRating();
 
-                List<Guid> bookingIdList = feedbackList.Select(x => x.BookingId).ToList();
-                List<Therapist> therapistList = new List<Therapist>();
+                const decimal tolerance = 0.5m;
+                var lowerBound = rating - tolerance;
 
-                foreach (var item in bookingIdList)
-                {
-                    var booking = await _context.Bookings.Include(b => b.Therapist).FirstOrDefaultAsync(x => x.BookingId == item);
-                    if (booking != null && booking.Therapist != null)
+                var matchingTherapists = avgRatings
+                    .Where(x => x.Value >= lowerBound)
+                    .Select(x => new
                     {
-                        therapistList.Add(booking.Therapist);
-                    }
+                        Therapist = x.Key,
+                        AverageRating = x.Value
+                    })
+                    .ToList();
+
+                if (!matchingTherapists.Any())
+                {
+                    return NotFound($"No therapists found with an average rating close to {rating}.");
                 }
 
-                if(therapistList != null)
-                {
-                    return Ok(therapistList);
-                }
-                else
-                {
-                    return NotFound("Not found therapist in this rating");
-                }
+                return Ok(matchingTherapists);
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        public Dictionary<Therapist, decimal> GetAvgRating()
+        {
+            var fb = _context.Feedbacks.AsQueryable();
+
+            var rs = fb.Include(x => x.Booking)
+                .ThenInclude(x => x.Therapist)
+                .GroupBy(x => x.Booking.Therapist)
+                .ToDictionary(key => key.Key, value => value.Average(x => x.Rating));
+            return rs;
         }
 
         public Dictionary<Therapist, decimal> GetTherapistRating()

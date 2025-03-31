@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Ganss.Xss;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,16 @@ namespace SWP391.Service
         {
             try
             {
+                if (string.IsNullOrEmpty(userId) || !Guid.TryParse(userId, out Guid parsedUserId))
+                {
+                    return BadRequest("Invalid userId");
+                }
+
+                if (string.IsNullOrEmpty(dto.Body))
+                {
+                    return BadRequest("Body cannot be empty");
+                }
+
                 var nBlog = _mapper.Map<Blog>(dto);
                 nBlog.Id = Guid.NewGuid();
                 nBlog.Status = BlogStatusEnum.Active;
@@ -42,6 +53,10 @@ namespace SWP391.Service
                 nBlog.UpdatedBy = Guid.Parse(userId);
                 nBlog.UpdatedAt = DateTime.Now;
                 _context.Add(nBlog);
+
+                var sanitizer = new HtmlSanitizer();
+                nBlog.Body = sanitizer.Sanitize(dto.Body);
+
                 var rs = await _context.SaveChangesAsync();
                 if(rs > 0)
                 {
@@ -132,6 +147,10 @@ namespace SWP391.Service
                 nBlog.CreatedBy = old.CreatedBy;
                 nBlog.UpdatedBy = Guid.Parse(userId);
                 nBlog.UpdatedAt = DateTime.Now;
+
+                var sanitizer = new HtmlSanitizer();
+                nBlog.Body = sanitizer.Sanitize(dto.Body);
+
                 _context.Blogs.Update(nBlog);
                 var rs = _context.SaveChanges();
                 if (rs > 0)
