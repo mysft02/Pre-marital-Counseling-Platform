@@ -12,7 +12,7 @@ namespace SWP391.Service
 {
     public interface IMemberAnswerService
     {
-        
+
         Task<IActionResult> GetAllMemberAnswers();
         Task<IActionResult> GetMemberAnswerById(Guid id);
         Task<IActionResult> CreateMemberAnswer(CreateMemberAnswerDTO createMemberAnswerDTO, string? userId);
@@ -42,7 +42,7 @@ namespace SWP391.Service
             try
             {
                 decimal total = 0;
-                foreach(var item in dto)
+                foreach (var item in dto)
                 {
                     var memberAnswerMappper = _mapper.Map<MemberAnswer>(item);
                     _context.MemberAnswers.Add(memberAnswerMappper);
@@ -97,7 +97,8 @@ namespace SWP391.Service
                 if (_context.SaveChanges() > 0)
                 {
                     return Ok(response);
-                }else
+                }
+                else
                 {
                     return BadRequest("Failed to save");
                 }
@@ -106,7 +107,7 @@ namespace SWP391.Service
             }
             catch (Exception ex)
             {
-                if(ex.InnerException != null)
+                if (ex.InnerException != null)
                 {
                     Console.WriteLine(ex.InnerException.Message);
                 }

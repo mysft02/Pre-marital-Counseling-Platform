@@ -152,7 +152,7 @@ namespace SWP391.Service
             try
             {
                 var slot = _context.Schedules.FirstOrDefault(x => x.ScheduleId == bookingCreateDTO.ScheduleId);
-                if(slot.Status != ScheduleStatusEnum.Available)
+                if (slot.Status != ScheduleStatusEnum.Available)
                 {
                     return BadRequest("Slot is not available!");
                 }
@@ -160,20 +160,20 @@ namespace SWP391.Service
                 var userQuery = _context.Users.AsQueryable();
 
                 var member = userQuery.FirstOrDefault(x => x.UserId == bookingCreateDTO.MemberId);
-                if(member.Role != UserRoleEnum.MEMBER)
+                if (member.Role != UserRoleEnum.MEMBER)
                 {
                     return BadRequest("Member unauthorized!");
                 }
 
                 var therapist = _context.Therapists.FirstOrDefault(x => x.TherapistId == bookingCreateDTO.TherapistId);
-                if(therapist == null)
+                if (therapist == null)
                 {
                     return BadRequest("Therapist not found!");
                 }
 
                 var bookingQuery = _context.Bookings.AsQueryable();
 
-                if(bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) != null)
+                if (bookingQuery.FirstOrDefault(e => e.Status == BookingStatusEnum.PENDING && e.ScheduleId == bookingCreateDTO.ScheduleId) != null)
                 {
                     return BadRequest("Slot is not available!");
                 }
@@ -210,7 +210,7 @@ namespace SWP391.Service
 
                 var wallet = _context.Wallets.FirstOrDefault(c => c.UserId == member.UserId);
 
-                if(wallet.Balance < bookingMapped.Fee)
+                if (wallet.Balance < bookingMapped.Fee)
                 {
                     return BadRequest("Balance not enough!");
                 }
@@ -332,12 +332,12 @@ namespace SWP391.Service
                     return BadRequest("Booking is not finished!");
                 }
 
-                if(booking.Feedback == null)
+                if (booking.Feedback == null)
                 {
                     return BadRequest("No feedback yet!");
                 }
 
-                if(booking.BookingResult == null)
+                if (booking.BookingResult == null)
                 {
                     return BadRequest("No result yet!");
                 }
@@ -444,7 +444,7 @@ namespace SWP391.Service
         public async Task<IActionResult> UpdateCommission(CommissionDTO commissionDTO)
         {
             var booking = _context.Bookings.FirstOrDefault(x => x.Status == BookingStatusEnum.TEST);
-            if(commissionDTO.Commission < 0 || commissionDTO.Commission > 100)
+            if (commissionDTO.Commission < 0 || commissionDTO.Commission > 100)
             {
                 return BadRequest("Commission must be between 0 and 100");
             }

@@ -96,7 +96,7 @@ namespace SWP391.Service
                         Therapists = x.Therapists
                         .Where(c => c.Specification.Name == x.Name)
                         .Select(c => c.Therapist)
-                        
+
                         .ToList()
                     })
                     .FirstOrDefault(x => x.SpecificationId == id);
@@ -136,8 +136,8 @@ namespace SWP391.Service
             public int Level { get; set; }
         }
 
-        public async Task<IActionResult> HandleCreateSpecification(SpecificationCreateDTO specificationCreateDTO) 
-        { 
+        public async Task<IActionResult> HandleCreateSpecification(SpecificationCreateDTO specificationCreateDTO)
+        {
             try
             {
                 var specification = _mapper.Map<Specification>(specificationCreateDTO);

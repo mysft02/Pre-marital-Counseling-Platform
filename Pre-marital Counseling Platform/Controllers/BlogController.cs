@@ -28,7 +28,7 @@ namespace SWP391.Controllers
             return await _service.GetBlogById(id);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpPost("Create_Blog")]
         public async Task<IActionResult> CreateBlog([FromForm] CreateBlogDTO dto)
         {

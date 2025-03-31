@@ -33,7 +33,7 @@ namespace SWP391.Service
             {
                 var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
 
-                if(bookingCheck == null) { return BadRequest("Booking not finished"); }
+                if (bookingCheck == null) { return BadRequest("Booking not finished"); }
 
                 var feedback = new FeedbackDTO
                 {

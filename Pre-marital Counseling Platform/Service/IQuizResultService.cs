@@ -36,7 +36,7 @@ namespace SWP391.Service
                         .FirstOrDefault(x => x.QuizId == item.QuizId && x.Level == item.Level
                                              && x.Title == item.Title);
 
-                    if(duplicate == null)
+                    if (duplicate == null)
                     {
                         var quizResult = _mapper.Map<QuizResult>(item);
                         quizResult.Score = quizResult.Level * 25;
@@ -105,7 +105,8 @@ namespace SWP391.Service
                     .Where(x => x.Status == QuizResultStatusEnum.Active)
                     .ToList();
                 return Ok(list);
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
