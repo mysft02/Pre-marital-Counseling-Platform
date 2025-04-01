@@ -33,6 +33,13 @@ namespace SWP391.Controllers
             return await _feedbackService.HandleGetFeedbackById(id);
         }
 
+        [HttpGet("Get_Feedback_By_TherapistId")]
+        public async Task<IActionResult> GetFeedbackByTherapistId([FromQuery] Guid id)
+        {
+
+            return await _feedbackService.HandleGetFeedbackByTherapistId(id);
+        }
+
         [Authorize]
         [HttpPost("Create_Feedback")]
         public async Task<IActionResult> CreateFeedback([FromBody] FeedbackCreateDTO feedbackCreateDTO)

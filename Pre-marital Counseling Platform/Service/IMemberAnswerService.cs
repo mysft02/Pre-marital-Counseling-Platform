@@ -54,7 +54,7 @@ namespace SWP391.Service
                 var questionQuery = _context.Questions.AsQueryable();
 
                 var quiz = questionQuery
-                    .Include(c => c.Quiz)
+                    .Include(c => c.Quiz).ThenInclude(cs => cs.Category)
                     .FirstOrDefault(x => x.QuestionId == dto[0].QuestionId);
 
                 var maxScore = (questionQuery.Where(x => x.QuizId == quiz.QuizId).Count()) * 20;
@@ -75,26 +75,29 @@ namespace SWP391.Service
                 _context.MemberResults.Add(memberResultMapper);
 
                 var specification = _context.Specifications
-                    .FirstOrDefault(x => x.Name == quizResult.Title && x.Level == quizResult.Level);
+                    .FirstOrDefault(x => x.Name == quiz.Quiz.Category.Name && x.Level == quizResult.Level);
 
-                if(specification == null)
+                var therapists = new List<Therapist>();
+
+                if(specification != null)
                 {
-                    return BadRequest("Could not find specification");
-                }
-
-                var therapists = _context.TherapistSpecifications
+                    var dic = _context.TherapistSpecifications
                     .AsQueryable()
                     .Include(x => x.Therapist).ThenInclude(xc => xc.Schedules)
                     .Where(x => x.SpecificationId == specification.SpecificationId && x.Therapist.Status == true)
                     .GroupBy(x => x.SpecificationId)
-                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist));
+                    .ToDictionary(g => g.Key, g => g.Select(x => x.Therapist))
+                    ?? new Dictionary<Guid, IEnumerable<Therapist>>();
 
+                    therapists = dic.TryGetValue(specification.SpecificationId, out var therapistsList) ? therapistsList.ToList() : new List<Therapist>();
+                }
 
                 var response = new MemberAnswerResponse
                 {
                     QuizResult = quizResult,
+                    MemberResult = memberResultMapper,
                     UserScore = total + "/" + maxScore,
-                    Therapists = therapists.TryGetValue(specification.SpecificationId, out var therapistsList) ? therapistsList : new List<Therapist>()
+                    Therapists = therapists
                 };
 
                 if (_context.SaveChanges() > 0)

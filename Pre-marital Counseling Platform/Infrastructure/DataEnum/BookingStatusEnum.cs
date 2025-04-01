@@ -5,6 +5,7 @@
         PENDING = 1,
         CANCELED,
         FINISHED,
-        CLOSED
+        CLOSED,
+        TEST
     }
 }

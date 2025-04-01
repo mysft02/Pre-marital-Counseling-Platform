@@ -1,4 +1,6 @@
-﻿namespace SWP391.Domain
+﻿using System.Text.Json.Serialization;
+
+namespace SWP391.Domain
 {
     public class Therapist : BaseEntities
     {
@@ -10,6 +12,7 @@
         public decimal ConsultationFee { get; set; }
         public string MeetUrl { get; set; }
         public List<Schedule>? Schedules { get; set; }
+        [JsonIgnore]
         public List<TherapistSpecification> Specialty { get; set; }
         public List<Certificate> Certificates { get; set; }
     }

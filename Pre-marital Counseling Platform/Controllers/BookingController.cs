@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SWP391.DTO;
 using SWP391.Service;
 using System.Security.Claims;
+using static SWP391.Service.BookingService;
 
 namespace SWP391.Controllers
 {
@@ -47,6 +48,20 @@ namespace SWP391.Controllers
             return await _bookingService.HandleGetBookingByTherapistId(id);
         }
 
+        [HttpGet("Get_Commission")]
+        public async Task<IActionResult> GetCommission()
+        {
+
+            return await _bookingService.GetCommission();
+        }
+
+        [HttpPost("Update_Commission")]
+        public async Task<IActionResult> UpdateCommission(CommissionDTO commissionDTO)
+        {
+
+            return await _bookingService.UpdateCommission(commissionDTO);
+        }
+
         [Authorize]
         [HttpPost("Create_Booking")]
         public async Task<IActionResult> CreateBooking([FromBody] BookingCreateDTO bookingCreateDTO)
@@ -69,12 +84,12 @@ namespace SWP391.Controllers
 
         [Authorize]
         [HttpPost("Cancel_Booking")]
-        public async Task<IActionResult> CancelBooking([FromQuery] Guid id)
+        public async Task<IActionResult> CancelBooking([FromBody] BookingCancelDTO bookingCancelDTO)
         {
             var currentUser = HttpContext.User;
             var userId = currentUser.FindFirst("UserId")?.Value;
 
-            return await _bookingService.HandleCancelBooking(id, userId);
+            return await _bookingService.HandleCancelBooking(bookingCancelDTO, userId);
         }
 
         [Authorize]

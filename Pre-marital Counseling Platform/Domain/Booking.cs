@@ -10,6 +10,7 @@ namespace SWP391.Domain
         public Guid ScheduleId { get; set; }
         public BookingStatusEnum Status { get; set; }
         public decimal Fee { get; set; }
+        public decimal Commission { get; set; }
         public User User { get; set; }
         public Therapist Therapist { get; set; }
         public Schedule Schedule { get; set; }

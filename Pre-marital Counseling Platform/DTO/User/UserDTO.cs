@@ -31,6 +31,7 @@ namespace SWP391.DTO
         public string FullName { get; set; }
         public bool IsActive { get; set; }
         public string Email { get; set; }
+        public UserRoleEnum Role { get; set; }
         public List<Booking> Bookings { get; set; }
     }
     public class UserProfile : Profile

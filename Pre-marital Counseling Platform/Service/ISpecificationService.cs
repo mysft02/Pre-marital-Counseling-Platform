@@ -5,6 +5,7 @@ using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
 using SWP391.Infrastructure.DbContext;
+using static SWP391.Service.SpecificationService;
 
 namespace SWP391.Service
 {
@@ -12,9 +13,14 @@ namespace SWP391.Service
     {
         Task<IActionResult> HandleCreateSpecification(SpecificationCreateDTO specificationCreateDTO);
         Task<IActionResult> HandleGetAllSpecifications();
+        Task<IActionResult> HandleGetAllSpecificationsWithLevel();
         Task<IActionResult> HandleGetSpecificationById(Guid id);
+        Task<IActionResult> HandleUpdateTheSpeStatus(UpdateTheSpeDTO updateTheSpeDTO);
         Task<IActionResult> HandleUpdateSpecification(SpecificationUpdateDTO specificationUpdateDTO);
         Task<IActionResult> HandleUpdateTherapistSpecification(TherapistSpecificationUpdateDTO therapistSpecificationUpdateDTO);
+        Task<IActionResult> HandleGetSpecificationByTherapistId(Guid id);
+        Task<IActionResult> HandleGetSpeTheByTherapistId(Guid id);
+        Task<IActionResult> HandleGetAllSpeThe();
     }
 
     public class SpecificationService : ControllerBase, ISpecificationService
@@ -32,6 +38,33 @@ namespace SWP391.Service
         {
             try
             {
+                var specifications = _context.TherapistSpecifications
+                    .AsQueryable()
+                    .Include(x => x.Therapist)/*.ThenInclude(xc => xc.Schedules)*/
+                    .Where(x => x.Therapist.Status == true)
+                    .GroupBy(x => x.Specification.Name)
+                    .Select(c => new TestResponseDTO
+                    {
+                        SpecificationName = c.Key,
+                        Therapists = c.Select(m => m.Therapist).Distinct().ToList()
+                    })
+                    .ToList();
+
+                return Ok(specifications);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public class TestResponseDTO
+        {
+            public string SpecificationName { get; set; }
+            public List<Therapist> Therapists { get; set; }
+        }
+
+        public async Task<IActionResult> HandleGetAllSpecificationsWithLevel()
+        {
+            try
+            {
                 var specifications = _context.Specifications
                     .Include(c => c.Therapists).ThenInclude(c => c.Therapist)
                     .Select(x => new SpecificationDTO
@@ -40,7 +73,9 @@ namespace SWP391.Service
                         Name = x.Name,
                         Description = x.Description,
                         Level = x.Level,
-                        Therapists = x.Therapists.Select(c => c.Therapist).ToList()
+                        Therapists = x.Therapists
+                        .Select(c => c.Therapist)
+                        .ToList()
                     })
                     .ToList();
 
@@ -55,19 +90,81 @@ namespace SWP391.Service
             {
                 var specification = _context.Specifications
                     .Include(c => c.Therapists)
-                    .Select(x => new SpecificationDTO
+                    .Select(x => new SpecificationResponseListDTO
                     {
                         SpecificationId = x.SpecificationId,
                         Name = x.Name,
                         Description = x.Description,
-                        Level = x.Level,
-                        Therapists = x.Therapists.Select(c => c.Therapist).ToList()
+                        Therapists = x.Therapists
+                        .Where(c => c.Specification.Name == x.Name)
+                        .Select(c => c.Therapist)
+                        
+                        .ToList()
                     })
                     .FirstOrDefault(x => x.SpecificationId == id);
 
                 return Ok(specification);
             }
             catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetSpecificationByTherapistId(Guid id)
+        {
+            try
+            {
+                var specification = _context.TherapistSpecifications
+                    .Include(c => c.Specification)
+                    .Include(c => c.Therapist)
+                    .Where(x => x.Therapist.TherapistId == id && x.Status == SpecificationStatusEnum.Active)
+                    .Select(x => new TempResponseDTO
+                    {
+                        SpecificationId = x.SpecificationId,
+                        Name = x.Specification.Name,
+                        Description = x.Specification.Description,
+                        Level = x.Specification.Level
+                    })
+                    .ToList();
+
+                return Ok(specification);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetSpeTheByTherapistId(Guid id)
+        {
+            try
+            {
+                var specification = _context.TherapistSpecifications
+                    .Include(c => c.Specification)
+                    .Include(c => c.Therapist)
+                    .Where(x => x.Therapist.TherapistId == id)
+                    .ToList();
+
+                return Ok(specification);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetAllSpeThe()
+        {
+            try
+            {
+                var specification = _context.TherapistSpecifications
+                    .Include(c => c.Specification)
+                    .Include(c => c.Therapist)
+                    .ToList();
+
+                return Ok(specification);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public class TempResponseDTO
+        {
+            public Guid SpecificationId { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public int Level { get; set; }
         }
 
         public async Task<IActionResult> HandleCreateSpecification(SpecificationCreateDTO specificationCreateDTO) 
@@ -113,16 +210,56 @@ namespace SWP391.Service
         {
             try
             {
+                var query = _context.TherapistSpecifications.AsQueryable();
+
+                if (query.Any(x => x.TherapistId == therapistSpecificationUpdateDTO.TherapistId && x.SpecificationId == therapistSpecificationUpdateDTO.SpecificationId))
+                {
+                    return BadRequest("Already exist");
+                }
                 var thespe = new TherapistSpecification
                 {
                     TherapistId = therapistSpecificationUpdateDTO.TherapistId,
                     SpecificationId = therapistSpecificationUpdateDTO.SpecificationId,
+                    Status = SpecificationStatusEnum.Pending
                 };
 
                 _context.TherapistSpecifications.Add(thespe);
                 if (_context.SaveChanges() > 0)
                 {
                     return Ok(thespe);
+                }
+                else
+                {
+                    return BadRequest("Update failed");
+                }
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public class UpdateTheSpeDTO
+        {
+            public Guid TherapistId { get; set; }
+            public Guid SpecificationId { get; set; }
+            public SpecificationStatusEnum Status { get; set; }
+        }
+
+
+        public async Task<IActionResult> HandleUpdateTheSpeStatus(UpdateTheSpeDTO updateTheSpeDTO)
+        {
+            try
+            {
+                var theSpe = _context.TherapistSpecifications
+                    .FirstOrDefault(x => x.TherapistId == updateTheSpeDTO.TherapistId && x.SpecificationId == updateTheSpeDTO.SpecificationId);
+                if (theSpe == null)
+                {
+                    return BadRequest("Not found");
+                }
+                theSpe.Status = updateTheSpeDTO.Status;
+
+                _context.TherapistSpecifications.Update(theSpe);
+                if (_context.SaveChanges() > 0)
+                {
+                    return Ok(theSpe);
                 }
                 else
                 {

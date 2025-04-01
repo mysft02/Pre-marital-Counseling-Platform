@@ -32,12 +32,24 @@ namespace SWP391.Service
             {
                 foreach (var item in dto)
                 {
-                    var quizResult = _mapper.Map<QuizResult>(item);
-                    quizResult.CreatedBy = Guid.Parse(userId);
-                    quizResult.CreatedAt = DateTime.Now;
-                    quizResult.UpdatedBy = Guid.Parse(userId);
-                    quizResult.UpdatedAt = DateTime.Now;
-                    _context.Add(quizResult);
+                    var duplicate = _context.QuizResults
+                        .FirstOrDefault(x => x.QuizId == item.QuizId && x.Level == item.Level
+                                             && x.Title == item.Title);
+
+                    if(duplicate == null)
+                    {
+                        var quizResult = _mapper.Map<QuizResult>(item);
+                        quizResult.Score = quizResult.Level * 25;
+                        quizResult.CreatedBy = Guid.Parse(userId);
+                        quizResult.CreatedAt = DateTime.Now;
+                        quizResult.UpdatedBy = Guid.Parse(userId);
+                        quizResult.UpdatedAt = DateTime.Now;
+                        _context.Add(quizResult);
+                    }
+                    else
+                    {
+                        return BadRequest("Duplicate data" + item.Title + " " + item.Level);
+                    }
                 }
 
                 var rs = await _context.SaveChangesAsync();
@@ -103,7 +115,12 @@ namespace SWP391.Service
         {
             try
             {
-                var quizResult = _mapper.Map<QuizResult>(dto);
+                var quizResult = _context.QuizResults
+                    .FirstOrDefault(x => x.QuizResultId == dto.QuizResultId);
+                quizResult.Score = dto.Level * 25;
+                quizResult.Title = dto.Title;
+                quizResult.Level = dto.Level;
+                quizResult.Description = dto.Description;
                 quizResult.UpdatedBy = Guid.Parse(userId);
                 quizResult.UpdatedAt = DateTime.Now;
                 _context.QuizResults.Update(quizResult);

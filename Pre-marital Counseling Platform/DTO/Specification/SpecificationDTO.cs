@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SWP391.Domain;
+using SWP391.Infrastructure.DataEnum;
 
 namespace SWP391.DTO
 {
@@ -10,6 +11,14 @@ namespace SWP391.DTO
         public string Description { get; set; }
         public int Level { get; set; }
         public List<Therapist> Therapists { get; set; } 
+    }
+
+    public class SpecificationResponseListDTO
+    {
+        public Guid SpecificationId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public List<Therapist> Therapists { get; set; }
     }
 
     public class SpecificationCreateDTO
@@ -38,13 +47,14 @@ namespace SWP391.DTO
         public string Name { get; set; }
         public string Description { get; set; }
         public int Level { get; set; }
+        public SpecificationStatusEnum Status { get; set; }
     }
 
     public class SpecificationProfile : Profile
     {
         public SpecificationProfile()
         {
-            CreateMap<Specification, SpecificationDTO>().ReverseMap();
+            CreateMap<Specification, SpecificationResponseListDTO>().ReverseMap();
             CreateMap<SpecificationCreateDTO, Specification>().ReverseMap();
             CreateMap<SpecificationUpdateDTO, Specification>().ReverseMap();
         }

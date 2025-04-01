@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SWP391.Domain;
 using SWP391.DTO;
 using SWP391.Infrastructure.DataEnum;
@@ -12,6 +13,7 @@ namespace SWP391.Service
         Task<IActionResult> HandleCreateFeedback(FeedbackCreateDTO feedbackCreateDTO, string? userId);
         Task<IActionResult> HandleGetAllFeedbacks();
         Task<IActionResult> HandleGetFeedbackById(Guid id);
+        Task<IActionResult> HandleGetFeedbackByTherapistId(Guid id);
         Task<IActionResult> HandleUpdateFeedback(FeedbackUpdateDTO feedbackUpdateDTO, string? userId);
     }
 
@@ -30,7 +32,8 @@ namespace SWP391.Service
         {
             try
             {
-                var bookingCheck = _context.Bookings.FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
+                var bookingCheck = _context.Bookings
+                    .FirstOrDefault(x => x.BookingId == feedbackCreateDTO.BookingId && x.Status == BookingStatusEnum.FINISHED);
 
                 if(bookingCheck == null) { return BadRequest("Booking not finished"); }
 
@@ -67,10 +70,13 @@ namespace SWP391.Service
         {
             try
             {
-                List<FeedbackDTO> feedbacks = new List<FeedbackDTO>();
+                List<FeedBackReturnDTO> feedbacks = new List<FeedBackReturnDTO>();
                 feedbacks = _context.Feedbacks
-                    .Select(x => new FeedbackDTO
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
                     {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
                         FeedbackId = x.FeedbackId,
                         FeedbackTitle = x.FeedbackTitle,
                         FeedbackContent = x.FeedbackContent,
@@ -90,8 +96,11 @@ namespace SWP391.Service
             try
             {
                 var feedback = _context.Feedbacks
-                    .Select(x => new FeedbackDTO
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
                     {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
                         FeedbackId = x.FeedbackId,
                         FeedbackTitle = x.FeedbackTitle,
                         FeedbackContent = x.FeedbackContent,
@@ -100,6 +109,30 @@ namespace SWP391.Service
                         Rating = x.Rating,
                     })
                     .Where(c => c.FeedbackId == id);
+
+                return Ok(feedback);
+            }
+            catch (Exception ex) { return BadRequest(ex.Message); }
+        }
+
+        public async Task<IActionResult> HandleGetFeedbackByTherapistId(Guid id)
+        {
+            try
+            {
+                var feedback = _context.Feedbacks
+                    .Where(c => c.Booking.TherapistId == id)
+                    .Include(x => x.Booking).ThenInclude(x => x.User)
+                    .Select(x => new FeedBackReturnDTO
+                    {
+                        UserName = x.Booking.User.FullName,
+                        AvatarUrl = x.Booking.User.AvatarUrl,
+                        FeedbackId = x.FeedbackId,
+                        FeedbackTitle = x.FeedbackTitle,
+                        FeedbackContent = x.FeedbackContent,
+                        IsSatisfied = x.IsSatisfied,
+                        BookingId = x.BookingId,
+                        Rating = x.Rating,
+                    });
 
                 return Ok(feedback);
             }

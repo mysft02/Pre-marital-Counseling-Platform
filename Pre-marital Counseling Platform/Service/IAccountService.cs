@@ -66,6 +66,7 @@ namespace SWP391.Service
                         UserId = e.UserId,
                         Email = e.Email,
                         FullName = e.FullName,
+                        Role = e.Role,
                         IsActive = e.IsActive,
                         Bookings = e.Bookings,
                     })

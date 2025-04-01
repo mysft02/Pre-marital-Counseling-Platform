@@ -33,6 +33,26 @@ namespace SWP391.Controllers
             return await _therapistService.HandleGetTherapistById(id);
         }
 
+        [HttpGet("Get_Therapist_By_SpecificationId")]
+        public async Task<IActionResult> GetTherapistBySpecificationId([FromQuery] Guid id)
+        {
+
+            return await _therapistService.HandleGetTherapistBySpecificationId(id);
+        }
+
+        [HttpGet("Get_Therapist_By_Rating")]
+        public async Task<IActionResult> GetTherapistByRating([FromQuery] decimal rating)
+        {
+            return await _therapistService.GetTherapistByRating(rating);
+        }
+
+        [HttpGet("Get_Therapist_By_Name")]
+        public async Task<IActionResult> GetTherapistByName([FromQuery] string name)
+        {
+
+            return await _therapistService.HandleGetTherapistByName(name);
+        }
+
         [Authorize]
         [HttpPost("Update_Therapist")]
         public async Task<IActionResult> UpdateTherapist([FromBody] TherapistUpdateDTO therapistUpdateDTO)

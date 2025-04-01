@@ -59,7 +59,8 @@ namespace SWP391.Service
                 {
                     MemberResultId = x.MemberResultId,
                     QuizName = x.Quiz.Name,
-                    Score = x.Score
+                    Score = x.Score,
+                    Quiz = x.Quiz,
                 })
                     .ToList();
                 return Ok(memberResult);
