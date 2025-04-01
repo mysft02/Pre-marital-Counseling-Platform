@@ -103,7 +103,7 @@ namespace SWP391.Service
                 quiz.CategoryId = quizUpdateDTO.CategoryId;
                 quiz.Name = quizUpdateDTO.Name;
                 quiz.Description = quizUpdateDTO.Description;
-                quiz.QuizStatus = (QuizStatusEnum)quizUpdateDTO.Status;
+                quiz.QuizStatus = QuizStatusEnum.ACTIVE;
                 quiz.UpdatedAt = DateTime.Now;
                 quiz.UpdatedBy = Guid.Parse(userId);
 
