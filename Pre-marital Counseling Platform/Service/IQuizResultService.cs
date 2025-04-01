@@ -117,7 +117,10 @@ namespace SWP391.Service
             {
                 var quizResult = _context.QuizResults
                     .FirstOrDefault(x => x.QuizResultId == dto.QuizResultId);
-                quizResult.Score = quizResult.Level * 25;
+                quizResult.Score = dto.Level * 25;
+                quizResult.Title = dto.Title;
+                quizResult.Level = dto.Level;
+                quizResult.Description = dto.Description;
                 quizResult.UpdatedBy = Guid.Parse(userId);
                 quizResult.UpdatedAt = DateTime.Now;
                 _context.QuizResults.Update(quizResult);
